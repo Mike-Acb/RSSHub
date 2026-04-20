@@ -40,11 +40,19 @@ jobs:
             - name: Resolve image name from docker-compose
               id: image
               run: |
-                  image_name="$(docker compose config rsshub | awk '$1 == "image:" { print $2; exit }')"
+                  image_name="$(docker compose config --format json | jq -r '.services.rsshub.image // empty')"
                   if [ -z "$image_name" ]; then
                       echo 'Failed to resolve rsshub image from docker-compose.yml' >&2
                       exit 1
                   fi
+                  case "$image_name" in
+                      ghcr.io/mike-acb/rsshub:*)
+                          ;;
+                      *)
+                          echo "Unexpected rsshub image: $image_name" >&2
+                          exit 1
+                          ;;
+                  esac
                   echo "name=$image_name" >> "$GITHUB_OUTPUT"
                   echo "sha_tag=${image_name%:*}:${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
 
