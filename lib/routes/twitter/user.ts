@@ -68,8 +68,11 @@ async function handler(ctx) {
     const id = ctx.req.param('id');
 
     // For compatibility
-    const { count, include_replies, include_rts } = utils.parseRouteParams(ctx.req.param('routeParams'));
-    const params = count ? { count } : {};
+    const { count, include_replies, include_rts, detail } = utils.parseRouteParams(ctx.req.param('routeParams'));
+    const params = {
+        ...(count ? { count } : {}),
+        ...(detail ? { detail } : {}),
+    };
 
     await api.init();
     const userInfo = await api.getUser(id);
@@ -80,15 +83,16 @@ async function handler(ctx) {
             data = utils.excludeRetweet(data);
         }
     } catch (error) {
-        logger.error(error);
+        const stack = error.stack || error;
+        logger.error(`twitter error ${stack}`);
     }
 
-    const profileImageUrl = userInfo?.profile_image_url || userInfo?.profile_image_url_https;
+    const profileImageUrl = userInfo?.profile_image_url || userInfo?.profile_image_url_https || userInfo?.avatar?.image_url;
 
     return {
         title: `Twitter @${userInfo?.name}`,
         link: `https://x.com/${userInfo?.screen_name}`,
-        image: profileImageUrl.replace(/_normal.jpg$/, '.jpg'),
+        image: profileImageUrl?.replace(/_normal.jpg$/, '.jpg') ?? '',
         description: userInfo?.description,
         item:
             data &&

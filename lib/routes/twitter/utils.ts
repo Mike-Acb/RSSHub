@@ -1,10 +1,17 @@
+import { promises as fs } from 'node:fs';
+import { URL } from 'node:url';
+
+import { TwitterApi } from 'twitter-api-v2';
+
+import { config, setConfig } from '@/config';
+import logger from '@/utils/logger';
 import { parseDate } from '@/utils/parse-date';
 import { fallback, queryToBoolean, queryToInteger } from '@/utils/readable-social';
 
 const getQueryParams = (url) => Object.fromEntries(new URL(url).searchParams.entries());
 const getOriginalImg = (url) => {
     // https://greasyfork.org/zh-CN/scripts/2312-resize-image-on-open-image-in-new-tab/code#n150
-    let m: RegExpMatchArray | null;
+    let m = null;
     if ((m = url.match(/^(https?:\/\/\w+\.twimg\.com\/media\/[^/:]+)\.(jpg|jpeg|gif|png|bmp|webp)(:\w+)?$/i))) {
         let format = m[2];
         if (m[2] === 'jpeg') {
@@ -64,7 +71,6 @@ const ProcessFeed = (ctx, { data = [] }, params = {}) => {
         heightOfPics: fallback(params.heightOfPics, queryToInteger(routeParams.get('heightOfPics')), -1),
         sizeOfAuthorAvatar: fallback(params.sizeOfAuthorAvatar, queryToInteger(routeParams.get('sizeOfAuthorAvatar')), 48),
         sizeOfQuotedAuthorAvatar: fallback(params.sizeOfQuotedAuthorAvatar, queryToInteger(routeParams.get('sizeOfQuotedAuthorAvatar')), 24),
-        mediaNumber: fallback(params.mediaNumber, queryToInteger(routeParams.get('mediaNumber')), false),
     };
 
     params = mergedParams;
@@ -83,7 +89,7 @@ const ProcessFeed = (ctx, { data = [] }, params = {}) => {
         addLinkForPics,
         showTimestampInDescription,
         showQuotedInTitle,
-        mediaNumber,
+
         widthOfPics,
         heightOfPics,
         sizeOfAuthorAvatar,
@@ -92,20 +98,19 @@ const ProcessFeed = (ctx, { data = [] }, params = {}) => {
 
     const formatVideo = (media, extraAttrs = '') => {
         let content = '';
-        let bestVideo = null;
-
+        let video = {};
         for (const item of media.video_info.variants) {
-            if (!bestVideo || (item.bitrate || 0) > (bestVideo.bitrate || -Infinity)) {
-                bestVideo = item;
+            if ((item.bitrate || 0) > (video.bitrate || -Infinity)) {
+                video = item;
             }
         }
 
-        if (bestVideo && bestVideo.url) {
+        if (video.url) {
             const gifAutoPlayAttr = media.type === 'animated_gif' ? 'autoplay loop muted webkit-playsinline playsinline' : '';
             if (!readable) {
                 content += '<br>';
             }
-            content += `<video width="${media.sizes.large.w}" height="${media.sizes.large.h}" src='${bestVideo.url}' ${gifAutoPlayAttr} controls='controls' poster='${getOriginalImg(media.media_url_https)}' ${extraAttrs}></video>`;
+            content += `<video width="${media.sizes.large.w}" height="${media.sizes.large.h}" src='${video.url}' ${gifAutoPlayAttr} controls='controls' poster='${getOriginalImg(media.media_url_https)}' ${extraAttrs}></video>`;
         }
 
         return content;
@@ -114,8 +119,6 @@ const ProcessFeed = (ctx, { data = [] }, params = {}) => {
     const formatMedia = (item) => {
         let img = '';
         if (item.extended_entities) {
-            const mediaCount = item.extended_entities.media.length;
-            let index = 1;
             for (const media of item.extended_entities.media) {
                 // https://developer.x.com/en/docs/tweets/data-dictionary/overview/extended-entities-object
                 let content = '';
@@ -156,11 +159,6 @@ const ProcessFeed = (ctx, { data = [] }, params = {}) => {
                 }
 
                 img += content;
-
-                if (mediaNumber) {
-                    img += `<p style="text-align:center">${index}/${mediaCount}</p>`;
-                    index++;
-                }
             }
         }
 
@@ -208,76 +206,78 @@ const ProcessFeed = (ctx, { data = [] }, params = {}) => {
 
         // Make quote in description
         if (item.is_quote_status) {
-            const quoteData = item.quoted_status;
+            const quoteDataArray = Array.isArray(item.quoted_status) ? item.quoted_status : [item.quoted_status];
 
-            if (quoteData) {
-                quoteData.full_text = quoteData.full_text || quoteData.text;
-                const author = quoteData.user;
-                quote += '<div class="rsshub-quote">';
-                if (readable) {
-                    quote += `<br clear='both' /><div style='clear: both'></div>`;
-                    quote += `<blockquote style='background: #80808010;border-top:1px solid #80808030;border-bottom:1px solid #80808030;margin:0;padding:5px 20px;'>`;
-                } else {
-                    quote += '<br><br>';
-                }
-
-                if (readable) {
-                    quote += `<a href='https://x.com/${author.screen_name}' target='_blank' rel='noopener noreferrer'>`;
-                }
-
-                if (showQuotedAuthorAvatarInDesc) {
-                    quote += `<img width='${sizeOfQuotedAuthorAvatar}' height='${sizeOfQuotedAuthorAvatar}' src='${author.profile_image_url_https}' ${readable ? 'hspace="8" vspace="8" align="left"' : ''}>`;
-                }
-
-                if (authorNameBold) {
-                    quote += '<strong>';
-                }
-
-                quote += author.name;
-
-                if (authorNameBold) {
-                    quote += '</strong>';
-                }
-
-                if (readable) {
-                    quote += '</a>';
-                }
-
-                quote += ':&ensp;';
-                quote += formatText(quoteData);
-
-                if (!readable) {
-                    quote += '<br>';
-                }
-                quote += formatMedia(quoteData);
-                picsPrefix += generatePicsPrefix(quoteData);
-                quoteInTitle += showEmojiForRetweetAndReply ? ' 💬 ' : showSymbolForRetweetAndReply ? ' RT ' : '';
-                quoteInTitle += `${author.name}: ${formatText(quoteData)}`;
-
-                if (readable) {
-                    quote += `<br><small>Link: <a href='https://x.com/${author.screen_name}/status/${quoteData.id_str || quoteData.conversation_id_str}' target='_blank' rel='noopener noreferrer'>https://x.com/${
-                        author.screen_name
-                    }/status/${quoteData.id_str || quoteData.conversation_id_str}</a></small>`;
-                }
-                if (showTimestampInDescription) {
-                    quote += '<br><small>' + parseDate(quoteData.created_at);
-                    quote += '</small>';
+            for (const quoteData of quoteDataArray) {
+                if (quoteData) {
+                    quoteData.full_text = quoteData.full_text || quoteData.text;
+                    const author = quoteData.user;
+                    quote += '<div class="rsshub-quote">';
                     if (readable) {
                         quote += `<br clear='both' /><div style='clear: both'></div>`;
+                        quote += `<blockquote style='background: #80808010;border-top:1px solid #80808030;border-bottom:1px solid #80808030;margin:0;padding:5px 20px;'>`;
+                    } else {
+                        quote += '<br><br>';
                     }
-                }
 
-                if (readable) {
-                    quote += '</blockquote>';
+                    if (readable) {
+                        quote += `<a href='https://x.com/${author.screen_name}' target='_blank' rel='noopener noreferrer'>`;
+                    }
+
+                    if (showQuotedAuthorAvatarInDesc) {
+                        quote += `<img width='${sizeOfQuotedAuthorAvatar}' height='${sizeOfQuotedAuthorAvatar}' src='${author.profile_image_url_https}' ${readable ? 'hspace="8" vspace="8" align="left"' : ''}>`;
+                    }
+
+                    if (authorNameBold) {
+                        quote += '<strong>';
+                    }
+
+                    quote += author.name;
+
+                    if (authorNameBold) {
+                        quote += '</strong>';
+                    }
+
+                    if (readable) {
+                        quote += '</a>';
+                    }
+
+                    quote += ':&ensp;';
+                    quote += formatText(quoteData);
+
+                    if (!readable) {
+                        quote += '<br>';
+                    }
+                    quote += formatMedia(quoteData);
+                    picsPrefix += generatePicsPrefix(quoteData);
+                    quoteInTitle += showEmojiForRetweetAndReply ? ' 💬 ' : showSymbolForRetweetAndReply ? ' RT ' : '';
+                    quoteInTitle += `${author.name}: ${formatText(quoteData)}`;
+
+                    if (readable) {
+                        quote += `<br><small>Link: <a href='https://x.com/${author.screen_name}/status/${quoteData.id_str || quoteData.conversation_id_str}' target='_blank' rel='noopener noreferrer'>https://x.com/${
+                            author.screen_name
+                        }/status/${quoteData.id_str || quoteData.conversation_id_str}</a></small>`;
+                    }
+                    if (showTimestampInDescription) {
+                        quote += '<br><small>' + parseDate(quoteData.created_at);
+                        quote += '</small>';
+                        if (readable) {
+                            quote += `<br clear='both' /><div style='clear: both'></div>`;
+                        }
+                    }
+
+                    if (readable) {
+                        quote += '</blockquote>';
+                    }
+                    quote += '</div>';
                 }
-                quote += '</div>';
             }
         }
 
         // Make title
         let title = '';
         if (showAuthorInTitle) {
-            title += originalItem.user?.name + ': ';
+            title += originalItem.user.name + ': ';
         }
         const isRetweet = originalItem !== item;
         const isQuote = item.is_quote_status;
@@ -301,7 +301,7 @@ const ProcessFeed = (ctx, { data = [] }, params = {}) => {
         }
 
         if (showAuthorAsTitleOnly) {
-            title = originalItem.user?.name;
+            title = originalItem.user.name;
         }
 
         // Make description
@@ -313,12 +313,12 @@ const ProcessFeed = (ctx, { data = [] }, params = {}) => {
             if (showAuthorInDesc) {
                 if (readable) {
                     description += '<small>';
-                    description += `<a href='https://x.com/${originalItem.user?.screen_name}' target='_blank' rel='noopener noreferrer'>`;
+                    description += `<a href='https://x.com/${originalItem.user.screen_name}' target='_blank' rel='noopener noreferrer'>`;
                 }
                 if (authorNameBold) {
                     description += '<strong>';
                 }
-                description += originalItem.user?.name;
+                description += originalItem.user.name;
                 if (authorNameBold) {
                     description += '</strong>';
                 }
@@ -331,12 +331,12 @@ const ProcessFeed = (ctx, { data = [] }, params = {}) => {
             if (!showAuthorInDesc) {
                 description += '&ensp;';
                 if (readable) {
-                    description += `<a href='https://x.com/${item.user?.screen_name}' target='_blank' rel='noopener noreferrer'>`;
+                    description += `<a href='https://x.com/${item.user.screen_name}' target='_blank' rel='noopener noreferrer'>`;
                 }
                 if (authorNameBold) {
                     description += '<strong>';
                 }
-                description += item.user?.name;
+                description += item.user.name;
                 if (authorNameBold) {
                     description += '</strong>';
                 }
@@ -351,7 +351,7 @@ const ProcessFeed = (ctx, { data = [] }, params = {}) => {
         }
         if (showAuthorInDesc) {
             if (readable) {
-                description += `<a href='https://x.com/${item.user?.screen_name}' target='_blank' rel='noopener noreferrer'>`;
+                description += `<a href='https://x.com/${item.user.screen_name}' target='_blank' rel='noopener noreferrer'>`;
             }
 
             if (showAuthorAvatarInDesc) {
@@ -360,7 +360,7 @@ const ProcessFeed = (ctx, { data = [] }, params = {}) => {
             if (authorNameBold) {
                 description += '<strong>';
             }
-            description += item.user?.name;
+            description += item.user.name;
             if (authorNameBold) {
                 description += '</strong>';
             }
@@ -390,16 +390,16 @@ const ProcessFeed = (ctx, { data = [] }, params = {}) => {
         }
 
         const link =
-            originalItem.user?.screen_name && (originalItem.id_str || originalItem.conversation_id_str)
-                ? `https://x.com/${originalItem.user?.screen_name}/status/${originalItem.id_str || originalItem.conversation_id_str}`
-                : `https://x.com/${item.user?.screen_name}/status/${item.id_str || item.conversation_id_str}`;
+            originalItem.user.screen_name && (originalItem.id_str || originalItem.conversation_id_str)
+                ? `https://x.com/${originalItem.user.screen_name}/status/${originalItem.id_str || originalItem.conversation_id_str}`
+                : `https://x.com/${item.user.screen_name}/status/${item.id_str || item.conversation_id_str}`;
         return {
             title,
             author: [
                 {
-                    name: originalItem.user?.name,
-                    url: `https://x.com/${originalItem.user?.screen_name}`,
-                    avatar: originalItem.user?.profile_image_url_https,
+                    name: originalItem.user.name,
+                    url: `https://x.com/${originalItem.user.screen_name}`,
+                    avatar: originalItem.user.profile_image_url_https,
                 },
             ],
             description,
@@ -437,25 +437,51 @@ const ProcessFeed = (ctx, { data = [] }, params = {}) => {
     });
 };
 
+let getAppClient = () => null;
+
+if (config.twitter.consumer_key && config.twitter.consumer_secret) {
+    const consumer_keys = config.twitter.consumer_key.split(',');
+    const consumer_secrets = config.twitter.consumer_secret.split(',');
+    const T = {};
+    let count = 0;
+    let index = -1;
+
+    for (const [i, consumer_key] of consumer_keys.entries()) {
+        const consumer_secret = consumer_secrets[i];
+        if (consumer_key && consumer_secret) {
+            T[i] = new TwitterApi({
+                appKey: consumer_key,
+                appSecret: consumer_secret,
+            }).readOnly;
+            count = i + 1;
+        }
+    }
+
+    getAppClient = () => {
+        index++;
+        return T[index % count].appLogin();
+    };
+}
+
 const parseRouteParams = (routeParams) => {
-    let count, include_replies, include_rts, only_media;
+    let count, exclude_replies, include_rts, only_media, detail;
     let force_web_api = false;
     switch (routeParams) {
         case 'exclude_rts_replies':
         case 'exclude_replies_rts':
-            include_replies = false;
+            exclude_replies = true;
             include_rts = false;
 
             break;
 
-        case 'include_replies':
-            include_replies = true;
+        case 'exclude_replies':
+            exclude_replies = true;
             include_rts = true;
 
             break;
 
         case 'exclude_rts':
-            include_replies = false;
+            exclude_replies = false;
             include_rts = false;
 
             break;
@@ -463,13 +489,14 @@ const parseRouteParams = (routeParams) => {
         default: {
             const parsed = new URLSearchParams(routeParams);
             count = fallback(undefined, queryToInteger(parsed.get('count')));
-            include_replies = fallback(undefined, queryToBoolean(parsed.get('includeReplies')), false);
+            exclude_replies = fallback(undefined, queryToBoolean(parsed.get('excludeReplies')), false);
             include_rts = fallback(undefined, queryToBoolean(parsed.get('includeRts')), true);
             force_web_api = fallback(undefined, queryToBoolean(parsed.get('forceWebApi')), false);
             only_media = fallback(undefined, queryToBoolean(parsed.get('onlyMedia')), false);
+            detail = fallback(undefined, queryToBoolean(parsed.get('detail')), false);
         }
     }
-    return { count, include_replies, include_rts, force_web_api, only_media };
+    return { count, exclude_replies, include_rts, force_web_api, only_media, detail };
 };
 
 export const excludeRetweet = function (tweets) {
@@ -488,9 +515,22 @@ export const keepOnlyMedia = function (tweets) {
     return excluded;
 };
 
-export default {
-    ProcessFeed,
-    parseRouteParams,
-    excludeRetweet,
-    keepOnlyMedia,
-};
+export async function readFileAsync() {
+    try {
+        // Read the file content. Specify encoding ('utf8') to get a string directly.
+        // If encoding is omitted, it returns a Buffer.
+        const data = await fs.readFile('/var/tmp/twitter2FA', { encoding: 'utf8' });
+        logger.info('File content (async/await):');
+        logger.info(data);
+        logger.info('before secret :', config);
+        setConfig({
+            TWITTER_AUTHENTICATION_SECRET: data,
+        });
+        logger.info('after secret :', config);
+        // You can now process the 'data' string
+    } catch (error) {
+        logger.error('Error reading file:', error);
+    }
+}
+
+export default { ProcessFeed, getAppClient, parseRouteParams, excludeRetweet, keepOnlyMedia };

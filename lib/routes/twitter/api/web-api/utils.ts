@@ -2,6 +2,7 @@ import { cookie as HttpCookieAgentCookie, CookieAgent } from 'http-cookie-agent/
 import queryString from 'query-string';
 import { Cookie, CookieJar } from 'tough-cookie';
 import undici, { Client, ProxyAgent } from 'undici';
+import { generateHeaders, getOndemandFileUrl } from 'xclienttransaction';
 
 import { config } from '@/config';
 import ConfigNotFoundError from '@/errors/types/config-not-found';
@@ -15,6 +16,181 @@ import login from './login';
 
 let authTokenIndex = 0;
 
+// Twitter Transaction 相关常量和功能
+// 注意：原transaction-data.ts文件已合并到此文件中，以实现：
+// 1. 减少文件数量，简化项目结构
+// 2. 复用现有的网络请求基础设施（twitterGot, ofetch等）
+// 3. 统一Twitter相关工具函数的管理
+// 4. 更好地利用现有的Cookie和代理机制
+const CACHE_KEY_TRANSACTION_DATA = 'twitter:transaction-data';
+const CACHE_TTL_SUCCESS = 3600; // 1小时
+const CACHE_TTL_ERROR = 300; // 5分钟
+
+// 类型定义
+interface TwitterTransactionData {
+    homeHtml: string;
+    ondemandJs: string;
+}
+
+/**
+ * 获取Twitter主页HTML内容
+ * 使用现有的twitterGot函数以复用认证和代理配置
+ */
+const fetchHomeHtml = async (): Promise<string> => {
+    logger.debug('twitter-transaction: 开始获取Twitter主页HTML');
+
+    try {
+        // 使用标准请求头
+
+        // 直接请求x.com主页，不使用twitterGot的API路径处理
+        const response = await ofetch('https://x.com', {
+            headers: generateHeaders(),
+            timeout: 10000,
+            retry: 3,
+        });
+
+        if (!response || typeof response !== 'string') {
+            throw new Error('Invalid response format from x.com');
+        }
+
+        // 验证响应包含必要的SVG动画数据
+        const hasAnimationData = /loading-x-anim-\d+/.test(response) && /<svg[^>]*>.*?<path[^>]*d="[^"]*"/.test(response);
+        if (!hasAnimationData) {
+            logger.warn('twitter-transaction: 主页HTML缺少预期的SVG动画数据，但继续处理');
+        }
+
+        logger.debug('twitter-transaction: 成功获取Twitter主页HTML');
+        return response;
+    } catch (error) {
+        logger.error('twitter-transaction: 获取Twitter主页HTML失败:', error);
+        throw new Error(`Failed to fetch home HTML: ${error instanceof Error ? error.message : String(error)}`, { cause: error });
+    }
+};
+
+/**
+ * 获取ondemand JavaScript文件内容
+ * 使用ofetch直接请求JavaScript文件
+ */
+const fetchOndemandJs = async (ondemandUrl: string): Promise<string> => {
+    logger.debug(`twitter-transaction: 开始获取ondemand JS文件: ${ondemandUrl}`);
+
+    try {
+        // 使用标准请求头
+        const standardHeaders = generateHeaders();
+
+        const response = await ofetch(ondemandUrl, {
+            headers: {
+                ...standardHeaders,
+                Accept: '*/*',
+                Referer: 'https://x.com/',
+            },
+            timeout: 10000,
+            retry: 3,
+        });
+
+        let jsContent: string;
+
+        // 记录响应类型用于调试
+        const responseType = typeof response;
+        const constructorName = response?.constructor?.name;
+        logger.debug(`twitter-transaction: ondemand响应类型: ${responseType}, 构造函数: ${constructorName}`);
+
+        // 处理不同类型的响应
+        if (typeof response === 'string') {
+            jsContent = response;
+            logger.debug('twitter-transaction: 使用字符串响应');
+        } else if (response && typeof response === 'object' && 'text' in response && typeof response.text === 'function') {
+            // 处理Blob类型的响应
+            logger.debug('twitter-transaction: 检测到Blob响应，转换为文本');
+            jsContent = await response.text();
+        } else if (response && typeof response === 'object' && response.constructor && response.constructor.name === 'Blob') {
+            // 处理Blob对象
+            logger.debug('twitter-transaction: 检测到Blob对象，转换为文本');
+            jsContent = await (response as Blob).text();
+        } else {
+            throw new Error(`Unexpected response type from ondemand JS file: ${responseType}, constructor: ${constructorName}`);
+        }
+
+        // 验证JavaScript内容
+        if (!jsContent) {
+            throw new Error('Empty JavaScript content from ondemand file');
+        }
+
+        // 验证响应包含预期的JavaScript内容和关键字节索引模式
+        if (!jsContent.includes('function') && !jsContent.includes('return')) {
+            throw new Error('Response does not appear to be valid JavaScript');
+        }
+
+        logger.debug(`twitter-transaction: 成功获取ondemand JS文件，长度: ${jsContent.length}字符`);
+        return jsContent;
+    } catch (error) {
+        logger.error('twitter-transaction: 获取ondemand JS文件失败:', error);
+        throw new Error(`Failed to fetch ondemand JS: ${error instanceof Error ? error.message : String(error)}`, { cause: error });
+    }
+};
+
+/**
+ * 获取Twitter Transaction所需的数据（homeHtml和ondemandJs）
+ * 包含智能缓存和错误处理，复用现有的网络基础设施
+ */
+const getTwitterTransactionData = async (): Promise<TwitterTransactionData> => {
+    logger.debug('twitter-transaction: 开始获取Twitter transaction数据');
+
+    try {
+        // 尝试从缓存获取数据
+        const cachedData = await cache.get(CACHE_KEY_TRANSACTION_DATA);
+        if (cachedData) {
+            logger.debug('twitter-transaction: 从缓存获取数据成功');
+            return JSON.parse(cachedData);
+        }
+
+        // 缓存未命中，获取新数据
+        logger.debug('twitter-transaction: 缓存未命中，获取新数据');
+
+        // 获取homeHtml
+        const homeHtml = await fetchHomeHtml();
+
+        // 使用XClientTransactionJS提供的工具函数解析ondemand URL
+        const ondemandUrl = getOndemandFileUrl(homeHtml);
+        if (!ondemandUrl) {
+            throw new Error('无法从HTML中提取ondemand URL');
+        }
+
+        // 获取ondemand JavaScript文件
+        const ondemandJs = await fetchOndemandJs(ondemandUrl);
+
+        // 最终验证数据质量
+
+        const data: TwitterTransactionData = {
+            homeHtml,
+            ondemandJs,
+        };
+
+        // 缓存成功获取的数据
+        await cache.set(CACHE_KEY_TRANSACTION_DATA, JSON.stringify(data), CACHE_TTL_SUCCESS);
+
+        logger.debug('twitter-transaction: 成功获取并缓存Twitter transaction数据');
+        return data;
+    } catch (error) {
+        logger.error('twitter-transaction: 获取Twitter transaction数据失败:', error);
+
+        // 缓存错误状态（较短时间）以避免频繁重试
+        await cache.set(CACHE_KEY_TRANSACTION_DATA, JSON.stringify({ homeHtml: '', ondemandJs: '' }), CACHE_TTL_ERROR);
+
+        // 返回空数据而不是抛出错误，允许系统降级运行
+        return {
+            homeHtml: '',
+            ondemandJs: '',
+        };
+    }
+};
+
+/**
+ * 生成Twitter API请求所需的X-Client-Transaction-Id
+ * @param method HTTP方法 (GET, POST, etc.)
+ * @param path API路径
+ * @returns Transaction ID字符串，失败时返回空字符串
+ */
 const token2Cookie = async (token) => {
     const c = await cache.get(`twitter:cookie:${token}`);
     if (c) {
@@ -293,9 +469,70 @@ export const paginationTweets = async (endpoint: string, userId: number | undefi
 
     const moduleItems = instructions.find((i) => i.type === 'TimelineAddToModule')?.moduleItems;
     const entries = instructions.find((i) => i.type === 'TimelineAddEntries')?.entries;
-    const gridEntries = entries.find((i) => i.entryId === 'profile-grid-0')?.content?.items;
+    const gridEntries = entries?.find((i) => i.entryId === 'profile-grid-0')?.content?.items;
 
     return gridEntries || moduleItems || entries || [];
+};
+
+/**
+ * 清除缓存的transaction数据（用于调试或强制刷新）
+ */
+export const clearTwitterTransactionDataCache = async (): Promise<void> => {
+    await cache.set(CACHE_KEY_TRANSACTION_DATA, '', 1);
+    logger.debug('twitter-transaction: 已清除transaction数据缓存');
+};
+
+/**
+ * 调试函数：验证并打印获取到的数据格式（仅用于开发调试）
+ */
+export const debugTwitterTransactionData = async (): Promise<void> => {
+    try {
+        const { homeHtml, ondemandJs } = await getTwitterTransactionData();
+
+        logger.info('=== Twitter Transaction Data Debug ===');
+
+        // 测试XClientTransactionJS工具函数
+        try {
+            const ondemandUrl = getOndemandFileUrl(homeHtml);
+            logger.info(`使用XClientTransactionJS解析的ondemand URL: ${ondemandUrl}`);
+        } catch (error) {
+            logger.warn('XClientTransactionJS getOndemandFileUrl解析失败:', error);
+        }
+
+        // 检查homeHtml中的SVG动画数据
+        const animDivs = homeHtml.match(/loading-x-anim-\d+/g) || [];
+        const svgPaths = homeHtml.match(/<svg[^>]*>.*?<path[^>]*d="[^"]*"/g) || [];
+
+        logger.info(`Home HTML - 动画div数量: ${animDivs.length}, SVG路径数量: ${svgPaths.length}`);
+        if (animDivs.length > 0) {
+            logger.info(`找到的动画div: ${animDivs.slice(0, 4).join(', ')}`);
+        }
+
+        // 检查ondemandJs中的关键字节索引
+        const keyByteMatches = ondemandJs.match(/\(a\[\d+\],\s*\d+\)/g) || [];
+        const arrayAccessMatches = ondemandJs.match(/a\[\d+\]/g) || [];
+
+        logger.info(`Ondemand JS - 文件大小: ${ondemandJs.length}字符, 关键字节模式: ${keyByteMatches.length}, 数组访问: ${arrayAccessMatches.length}`);
+        if (keyByteMatches.length > 0) {
+            logger.info(`找到的关键字节模式: ${keyByteMatches.slice(0, 5).join(', ')}`);
+        }
+
+        // 显示JavaScript文件的开头部分用于验证
+        const preview = ondemandJs.slice(0, 200) + (ondemandJs.length > 200 ? '...' : '');
+        logger.info(`Ondemand JS预览: ${preview}`);
+
+        // 测试标准请求头生成
+        try {
+            const headers = generateHeaders();
+            logger.info(`XClientTransactionJS生成的标准请求头数量: ${Object.keys(headers).length}`);
+        } catch (error) {
+            logger.warn('XClientTransactionJS generateHeaders失败:', error);
+        }
+
+        logger.info('=== Debug Complete ===');
+    } catch (error) {
+        logger.error('twitter-transaction: 调试数据获取失败:', error);
+    }
 };
 
 export function gatherLegacyFromData(entries: any[], filterNested?: string[], userId?: number | string) {

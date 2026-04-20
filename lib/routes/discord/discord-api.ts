@@ -39,7 +39,7 @@ export const getChannel = (channelId, authorization) =>
         })
     ) as Promise<RESTGetAPIChannelResult>;
 
-export const getChannelMessages = (channelId, authorization, limit = 100) =>
+export const getChannelMessages = (channelId, authorization, limit = 100, after: string = '') =>
     cache.tryGet(
         `discord:channels:${channelId}:messages`,
         () =>
@@ -49,11 +49,20 @@ export const getChannelMessages = (channelId, authorization, limit = 100) =>
                 },
                 query: {
                     limit,
+                    ...(after ? { after } : {}),
                 } as RESTGetAPIChannelMessagesQuery,
             }),
         config.cache.routeExpire,
         false
     ) as Promise<RESTGetAPIChannelMessagesResult>;
+
+// export const getChannelMessagesAfter = (channelId, authorization, limit = 100) => {
+//      cache.tryGet(`discord:channels:${channelId}:messages:after`,
+//         ()=> getChannelMessages(channelId, authorization, limit),
+//         config.cache.routeExpire,
+//         false
+//     ) as Promise<RESTGetAPIChannelMessagesResult>;
+//      return getChannelMessages(channelId, authorization, limit);
 
 interface SearchGuildMessagesResult {
     analytics_id: string;

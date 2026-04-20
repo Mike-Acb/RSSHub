@@ -41,7 +41,7 @@ const getUserData = (id) =>
         });
     });
 
-const cacheTryGet = async (_id, params, func) => {
+const cacheTryGet = async (_id, params, func, cached = true) => {
     const userData: any = await getUserData(_id);
     const id = (userData.data?.user || userData.data?.user_result)?.result?.rest_id;
     if (id === undefined) {
@@ -50,6 +50,9 @@ const cacheTryGet = async (_id, params, func) => {
     }
     const funcName = func.name;
     const paramsString = JSON.stringify(params);
+    if (!cached) {
+        return func(id, params);
+    }
     return cache.tryGet(`twitter:${id}:${funcName}:${paramsString}`, () => func(id, params), config.cache.routeExpire, false);
 };
 
@@ -67,21 +70,57 @@ const getUserTweets = (id: string, params?: Record<string, any>) =>
         )
     );
 
-const getUserTweetsAndReplies = (id: string, params?: Record<string, any>) =>
-    cacheTryGet(id, params, async (id, params = {}) =>
-        gatherLegacyFromData(
-            await paginationTweets('UserTweetsAndReplies', id, {
-                ...params,
-                count: 20,
-                includePromotedContent: true,
-                withCommunity: true,
-                withVoice: true,
-                withV2Timeline: true,
-            }),
-            ['profile-conversation-'],
-            id
-        )
+const getUserTweetsAndReplies = (id: string, params?: Record<string, any>) => {
+    const _id = id;
+    return cacheTryGet(
+        id,
+        params,
+        async (id, params = {}) => {
+            const _result = gatherLegacyFromData(
+                await paginationTweets('UserTweetsAndReplies', id, {
+                    ...params,
+                    count: 20,
+                    includePromotedContent: true,
+                    withCommunity: true,
+                    withVoice: true,
+                    withV2Timeline: true,
+                }),
+                ['profile-conversation-'],
+                id
+            );
+            if (params?.detail) {
+                return await Promise.all(
+                    _result
+                        .filter((i) => !i.is_quote_status)
+                        .map(async (i) => {
+                            const status = i.id_str;
+                            let tweet = null;
+                            try {
+                                tweet = await getUserTweet(_id, {
+                                    focalTweetId: status,
+                                    with_rux_injections: false,
+                                    includePromotedContent: true,
+                                    withCommunity: true,
+                                    withQuickPromoteEligibilityTweetFields: true,
+                                    withBirdwatchNotes: true,
+                                    withVoice: true,
+                                    withV2Timeline: true,
+                                });
+                            } catch {
+                                tweet = null;
+                            }
+                            i.quoted_status = tweet;
+                            i.is_quote_status = true;
+                            return i;
+                        })
+                );
+            }
+
+            return _result;
+        },
+        false
     );
+};
 
 const getUserMedia = (id: string, params?: Record<string, any>) =>
     cacheTryGet(id, params, async (id, params = {}) =>
@@ -164,10 +203,17 @@ const getList = async (id: string, params?: Record<string, any>) =>
 
 const getUser = async (id: string) => {
     const userData: any = await getUserData(id);
+
+    const user = userData.data?.user || userData.data?.user_result;
+    const userResult = user?.result;
+    const legacyUser = userResult?.legacy;
+
     return {
         profile_image_url: userData.data?.user?.result?.avatar?.image_url,
         ...userData.data?.user?.result?.core,
         ...(userData.data?.user || userData.data?.user_result)?.result?.legacy,
+        ...legacyUser,
+        ...userResult,
     };
 };
 

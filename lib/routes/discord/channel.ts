@@ -48,10 +48,11 @@ async function handler(ctx) {
     const guildInfo = await getGuild(guildId, authorization);
     const { name: guildName, icon: guidIcon } = guildInfo;
 
+    const author = `${message.author.global_name ?? message.author.username}(${message.author.username})`;
     const messages = messagesRaw.map((message) => ({
         title: message.content.split('\n')[0],
         description: renderDescription({ message, guildInfo }),
-        author: `${message.author.global_name ?? message.author.username}(${message.author.username})`,
+        author,
         pubDate: parseDate(message.timestamp),
         updated: message.edited_timestamp ? parseDate(message.edited_timestamp) : undefined,
         category: `#${channelName}`,
