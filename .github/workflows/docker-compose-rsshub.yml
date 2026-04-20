@@ -1,0 +1,58 @@
+name: 'Docker Compose RSSHub'
+
+on:
+    push:
+        branches:
+            - twitter
+        paths:
+            - '.github/workflows/docker-compose-rsshub.yml'
+            - 'docker-compose.yml'
+            - 'Dockerfile'
+            - 'lib/**'
+            - '!lib/**/*.test.ts'
+            - 'package.json'
+            - 'pnpm-lock.yaml'
+    workflow_dispatch: {}
+
+concurrency:
+    group: docker-compose-rsshub-${{ github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    build-and-push:
+        if: github.ref_name == 'twitter'
+        runs-on: ubuntu-latest
+        timeout-minutes: 30
+        permissions:
+            contents: read
+            packages: write
+        steps:
+            - name: Checkout
+              uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+            - name: Log in to GHCR
+              uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
+              with:
+                  registry: ghcr.io
+                  username: ${{ github.actor }}
+                  password: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Resolve image name from docker-compose
+              id: image
+              run: |
+                  image_name="$(docker compose config rsshub | awk '$1 == "image:" { print $2; exit }')"
+                  if [ -z "$image_name" ]; then
+                      echo 'Failed to resolve rsshub image from docker-compose.yml' >&2
+                      exit 1
+                  fi
+                  echo "name=$image_name" >> "$GITHUB_OUTPUT"
+                  echo "sha_tag=${image_name%:*}:${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+
+            - name: Build rsshub image
+              run: docker compose build --pull rsshub
+
+            - name: Push rsshub image
+              run: |
+                  docker tag "${{ steps.image.outputs.name }}" "${{ steps.image.outputs.sha_tag }}"
+                  docker push "${{ steps.image.outputs.sha_tag }}"
+                  docker push "${{ steps.image.outputs.name }}"
