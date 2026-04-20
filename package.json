@@ -137,7 +137,6 @@
         "undici": "7.25.0",
         "uuid": "13.0.0",
         "winston": "3.19.0",
-        "xclienttransaction": "file:./XClientTransactionJS",
         "xxhash-wasm": "1.1.0",
         "youtube-caption-extractor": "1.9.1",
         "youtubei.js": "17.0.1",
