@@ -298,6 +298,30 @@ export const paginationTweets = async (endpoint: string, userId: number | undefi
     return gridEntries || moduleItems || entries || [];
 };
 
+// X has removed `legacy` from the user object entirely on the newer timeline endpoints and moved
+// its fields into core / avatar / profile_bio / relationship_counts / privacy / verification.
+// Rebuild the legacy-shaped user the rest of the twitter route still expects, preferring whatever
+// `legacy` is still present so older endpoints keep working unchanged.
+function normalizeUser(result: any) {
+    if (!result) {
+        return;
+    }
+    const user = { ...result.legacy };
+    user.name = result.core?.name ?? user.name;
+    user.screen_name = result.core?.screen_name ?? user.screen_name;
+    user.created_at = result.core?.created_at ?? user.created_at;
+    user.id_str = user.id_str ?? result.rest_id;
+    user.profile_image_url_https = user.profile_image_url_https ?? result.avatar?.image_url;
+    user.profile_banner_url = user.profile_banner_url ?? result.banner?.image_url;
+    user.description = user.description ?? result.profile_bio?.description;
+    user.location = user.location ?? result.location?.location;
+    user.followers_count = user.followers_count ?? result.relationship_counts?.followers;
+    user.friends_count = user.friends_count ?? result.relationship_counts?.following;
+    user.protected = user.protected ?? result.privacy?.protected;
+    user.verified = user.verified ?? result.verification?.verified;
+    return user;
+}
+
 export function gatherLegacyFromData(entries: any[], filterNested?: string[], userId?: number | string) {
     const tweets: any[] = [];
     const filteredEntries: any[] = [];
@@ -327,32 +351,14 @@ export function gatherLegacyFromData(entries: any[], filterNested?: string[], us
                     if (!t?.legacy) {
                         continue;
                     }
-                    t.legacy.user = t.core?.user_result?.result?.legacy || t.core?.user_results?.result?.legacy;
-                    // Add name and screen_name from core to maintain compatibility
-                    if (t.legacy.user && t.core?.user_results?.result?.core) {
-                        const coreUser = t.core.user_results.result.core;
-                        if (coreUser.name) {
-                            t.legacy.user.name = coreUser.name;
-                        }
-                        if (coreUser.screen_name) {
-                            t.legacy.user.screen_name = coreUser.screen_name;
-                        }
-                    }
+                    t.legacy.user = normalizeUser(t.core?.user_result?.result || t.core?.user_results?.result);
                     t.legacy.id_str = t.rest_id; // avoid falling back to conversation_id_str elsewhere
                     const quote = t.quoted_status_result?.result?.tweet || t.quoted_status_result?.result;
-                    if (quote) {
+                    // A deleted or otherwise unavailable quoted tweet comes back as a TweetTombstone,
+                    // which carries no legacy payload — skip it instead of throwing on the whole feed.
+                    if (quote?.legacy) {
                         t.legacy.quoted_status = quote.legacy;
-                        t.legacy.quoted_status.user = quote.core.user_result?.result?.legacy || quote.core.user_results?.result?.legacy;
-                        // Add name and screen_name from core for quoted status user
-                        if (t.legacy.quoted_status.user && quote.core?.user_results?.result?.core) {
-                            const quoteCoreUser = quote.core.user_results.result.core;
-                            if (quoteCoreUser.name) {
-                                t.legacy.quoted_status.user.name = quoteCoreUser.name;
-                            }
-                            if (quoteCoreUser.screen_name) {
-                                t.legacy.quoted_status.user.screen_name = quoteCoreUser.screen_name;
-                            }
-                        }
+                        t.legacy.quoted_status.user = normalizeUser(quote.core?.user_result?.result || quote.core?.user_results?.result);
                     }
                     if (t.note_tweet) {
                         const tmp = t.note_tweet.note_tweet_results.result;

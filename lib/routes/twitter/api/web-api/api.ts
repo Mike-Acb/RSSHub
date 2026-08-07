@@ -77,7 +77,7 @@ const getUserTweetsAndReplies = (id: string, params?: Record<string, any>) => {
         params,
         async (id, params = {}) => {
             const _result = gatherLegacyFromData(
-                await paginationTweets('UserTweetsAndReplies', id, {
+                await paginationTweets('UserRepliesTimeline', id, {
                     ...params,
                     count: 20,
                     includePromotedContent: true,

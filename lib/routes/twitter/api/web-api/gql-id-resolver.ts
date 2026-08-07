@@ -1,31 +1,62 @@
+import { cookie as HttpCookieAgentCookie, CookieAgent } from 'http-cookie-agent/undici';
+import { CookieJar } from 'tough-cookie';
+import undici, { Client, ProxyAgent } from 'undici';
+
 import { config } from '@/config';
 import cache from '@/utils/cache';
 import logger from '@/utils/logger';
 import ofetch from '@/utils/ofetch';
+import proxy from '@/utils/proxy';
 
 const CACHE_KEY = 'twitter:gql-query-ids';
 
 // Hardcoded fallback IDs (last known working values)
 export const fallbackIds: Record<string, string> = {
-    UserTweets: 'E3opETHurmVJflFsUBVuUQ',
-    UserByScreenName: 'Yka-W8dz7RaEuQNkroPkYw',
+    UserTweets: 'T1x2zehUOKCWNpKwZCpnbg',
+    UserByScreenName: 'Gb-d6r0vxPOADdG62OEBpQ',
     HomeTimeline: 'xhYBF94fPSp8ey64FfYXiA',
     HomeLatestTimeline: '0vp2Au9doTKsbn2vIk48Dg',
-    UserTweetsAndReplies: 'bt4TKuFz4T7Ckk-VvQVSow',
-    UserMedia: 'dexO_2tohK86JDudXXG3Yw',
-    UserByRestId: 'Qw77dDjp9xCpUY-AXwt-yQ',
-    SearchTimeline: 'UN1i3zUiCWa-6r-Uaho4fw',
+    // X retired UserTweetsAndReplies (its bundle entry is dead code — the gateway 404s it)
+    // and split the profile tabs into UserRepliesTimeline / UserRepostsTimeline / UserPhotoTimeline / ...
+    UserRepliesTimeline: '2anL22XLKS0gNMtm1tSAcQ',
+    UserMedia: 'e2LuQ6Xj-VZ4Nvtfig5eFw',
+    UserByRestId: 'xvmVfRLmnr1alc5f2dib0Q',
+    SearchTimeline: 'PusO6nN_nUSAsfJktZJd9w',
     ListLatestTweetsTimeline: 'Pa45JvqZuKcW1plybfgBlQ',
-    TweetDetail: 'QuBlQ6SxNAQCt6-kBiCXCQ',
+    TweetDetail: 'VmqMAqtSRNBt_8fGV3n5Cg',
+    Likes: 'FRoquLK03At_BEbqVw3OHg',
 };
 
 const operationNames = Object.keys(fallbackIds);
 
+// The logged-out x.com shell is a separate lightweight app (x-web/entry-client-logged-out-*.js)
+// that does not reference the client-web bundle carrying the GraphQL query IDs. Only an
+// authenticated request to /home returns the real app shell, so send the auth cookie here.
 async function fetchTwitterPage(): Promise<string> {
-    const response = await ofetch('https://x.com', {
-        parseResponse: (txt) => txt,
+    const token = config.twitter.authToken?.[0];
+    if (!token) {
+        logger.warn('twitter gql-id-resolver: no auth token available, cannot reach the logged-in shell');
+        return '';
+    }
+
+    const jar = new CookieJar();
+    await jar.setCookie(`auth_token=${token}`, 'https://x.com');
+    const agent = proxy.proxyUri
+        ? new ProxyAgent({
+              factory: (origin, opts) => new Client(origin as string, opts).compose(HttpCookieAgentCookie({ jar })),
+              uri: proxy.proxyUri,
+          })
+        : new CookieAgent({ cookies: { jar } });
+
+    const response = await undici.fetch('https://x.com/home', {
+        headers: {
+            'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+            accept: 'text/html,application/xhtml+xml',
+            'accept-language': 'en-US,en;q=0.9',
+        },
+        dispatcher: agent,
     });
-    return response as unknown as string;
+    return await response.text();
 }
 
 function extractQueryIds(scriptContent: string): Record<string, string> {
