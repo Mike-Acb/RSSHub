@@ -78,7 +78,12 @@ async function handler(ctx) {
     const userInfo = await api.getUser(id);
     let data;
     try {
-        data = await (include_replies ? api.getUserTweetsAndReplies(id, params) : api.getUserTweets(id, params));
+        if (include_replies) {
+            const [replies, tweets] = await Promise.all([api.getUserTweetsAndReplies(id, params), api.getUserTweets(id, params)]);
+            data = utils.mergeUserTimelines(replies, tweets);
+        } else {
+            data = await api.getUserTweets(id, params);
+        }
         if (!include_rts) {
             data = utils.excludeRetweet(data);
         }

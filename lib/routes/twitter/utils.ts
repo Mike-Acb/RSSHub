@@ -498,6 +498,13 @@ const parseRouteParams = (routeParams) => {
     }
     return { count, include_replies, include_rts, force_web_api, only_media, detail };
 };
+export const mergeUserTimelines = (replies, tweets) => {
+    const merged = new Map();
+    for (const tweet of [...tweets, ...replies]) {
+        merged.set(tweet.id_str || tweet.conversation_id_str, tweet);
+    }
+    return [...merged.values()].toSorted((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at));
+};
 
 export const excludeRetweet = function (tweets) {
     const excluded = [];
@@ -533,4 +540,4 @@ export async function readFileAsync() {
     }
 }
 
-export default { ProcessFeed, getAppClient, parseRouteParams, excludeRetweet, keepOnlyMedia };
+export default { ProcessFeed, getAppClient, parseRouteParams, mergeUserTimelines, excludeRetweet, keepOnlyMedia };
