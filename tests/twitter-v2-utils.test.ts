@@ -59,6 +59,16 @@ describe('Twitter user feed', () => {
         expect(item.description).toContain('parent');
         expect(item._extra).toEqual({ links: [{ type: 'reply', url: 'https://x.com/parent/status/200' }] });
     });
+    test('shows the direct reply parent before older conversation posts', () => {
+        const reply = {
+            ...makeTweet('400', '没有分歧呀'),
+            in_reply_to_status_id_str: '300',
+            conversation_context: [makeTweet('100', 'older root'), makeTweet('200', 'older reply'), makeTweet('300', '可以出来了')],
+        };
+        const [item] = twitterUtils.ProcessFeed(context, { data: [reply] });
+        expect(item.description.indexOf('可以出来了')).toBeLessThan(item.description.indexOf('older reply'));
+        expect(item.description.indexOf('older reply')).toBeLessThan(item.description.indexOf('older root'));
+    });
     test('preserves a singular quote link and ignores unavailable entries before a valid quoted post', () => {
         const quote = makeTweet('200', 'quoted text');
         const singular = twitterUtils.ProcessFeed(context, { data: [{ ...makeTweet('300', 'original'), is_quote_status: true, quoted_status: quote }] })[0];

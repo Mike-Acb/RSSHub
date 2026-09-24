@@ -63,6 +63,6 @@ export const selectQuotedStatuses = (item: { is_quote_status?: boolean; quoted_s
     }
     const quoted: QuotedStatus[] = !item.is_quote_status || !item.quoted_status ? [] : Array.isArray(item.quoted_status) ? item.quoted_status : [item.quoted_status];
     const linkedQuote = quoted.find((status) => status?.user?.name && status.user.screen_name);
-    const statuses = [...(item.conversation_context ?? []), ...quoted].filter((status) => status?.user?.name && status.user.screen_name);
+    const statuses = [...(item.conversation_context?.toReversed() ?? []), ...quoted].filter((status) => status?.user?.name && status.user.screen_name);
     return { statuses, linkedQuote };
 };
