@@ -5250,6 +5250,62 @@ export default {
     "description": "",
     "lang": "zh-CN"
   },
+  "jma": {
+    "routes": {
+      "/wxchart/:type?": {
+        "path": "/wxchart/:type?",
+        "categories": [
+          "forecast"
+        ],
+        "view": 2,
+        "example": "/jma/wxchart/daily",
+        "parameters": {
+          "type": {
+            "description": "Chart type",
+            "options": [
+              {
+                "value": "daily",
+                "label": "天気図（最新）"
+              },
+              {
+                "value": "monthly",
+                "label": "過去の実況天気図（今月）"
+              }
+            ],
+            "default": "daily"
+          }
+        },
+        "radar": [
+          {
+            "source": [
+              "www.jma.go.jp/bosai/weather_map/"
+            ],
+            "target": "/wxchart/daily"
+          },
+          {
+            "source": [
+              "www.data.jma.go.jp/yoho/wxchart/quickmonthly.html"
+            ],
+            "target": "/wxchart/monthly"
+          }
+        ],
+        "name": "天気図",
+        "maintainers": [
+          "TonyRL"
+        ],
+        "url": "www.jma.go.jp/bosai/weather_map/",
+        "location": "wxchart.ts",
+        "module": () => import('@/routes/jma/wxchart.ts')
+      }
+    },
+    "apiRoutes": {},
+    "name": "気象庁 Japan Meteorological Agency",
+    "url": "www.jma.go.jp",
+    "categories": [
+      "forecast"
+    ],
+    "lang": "ja"
+  },
   "joneslanglasalle": {
     "routes": {
       "/:language?/:category{.+}?": {
@@ -13045,6 +13101,139 @@ export default {
     "url": "eleduck.com",
     "lang": "zh-CN"
   },
+  "everia": {
+    "routes": {
+      "/": {
+        "path": "/",
+        "categories": [
+          "picture"
+        ],
+        "example": "/everia",
+        "parameters": {},
+        "features": {
+          "requireConfig": false,
+          "requirePuppeteer": false,
+          "antiCrawler": false,
+          "supportBT": false,
+          "supportPodcast": false,
+          "supportScihub": false,
+          "nsfw": true
+        },
+        "radar": [
+          {
+            "source": [
+              "everia.club/"
+            ],
+            "target": ""
+          }
+        ],
+        "name": "Latest",
+        "maintainers": [
+          "KTachibanaM",
+          "AiraNadih"
+        ],
+        "location": "latest.ts",
+        "module": () => import('@/routes/everia/latest.ts')
+      },
+      "/search/:keyword": {
+        "path": "/search/:keyword",
+        "categories": [
+          "picture"
+        ],
+        "example": "/everia/search/日向坂46",
+        "parameters": {
+          "keyword": "Keyword"
+        },
+        "features": {
+          "requireConfig": false,
+          "requirePuppeteer": false,
+          "antiCrawler": false,
+          "supportBT": false,
+          "supportPodcast": false,
+          "supportScihub": false,
+          "nsfw": true
+        },
+        "name": "Search",
+        "maintainers": [
+          "KTachibanaM",
+          "AiraNadih"
+        ],
+        "location": "search.ts",
+        "module": () => import('@/routes/everia/search.ts')
+      },
+      "/category/:category": {
+        "path": "/category/:category",
+        "categories": [
+          "picture"
+        ],
+        "example": "/everia/category/cosplay",
+        "parameters": {
+          "category": "Category of the image stream"
+        },
+        "features": {
+          "requireConfig": false,
+          "requirePuppeteer": false,
+          "antiCrawler": false,
+          "supportBT": false,
+          "supportPodcast": false,
+          "supportScihub": false,
+          "nsfw": true
+        },
+        "radar": [
+          {
+            "source": [
+              "everia.club/category/:category"
+            ],
+            "target": "/category/:category"
+          }
+        ],
+        "name": "Images with category",
+        "maintainers": [
+          "KTachibanaM",
+          "AiraNadih"
+        ],
+        "location": "category.ts",
+        "module": () => import('@/routes/everia/category.ts')
+      },
+      "/tag/:tag": {
+        "path": "/tag/:tag",
+        "categories": [
+          "picture"
+        ],
+        "example": "/everia/tag/hinatazaka46-日向坂46",
+        "parameters": {
+          "tag": "Tag of the image stream"
+        },
+        "features": {
+          "requireConfig": false,
+          "requirePuppeteer": false,
+          "antiCrawler": false,
+          "supportBT": false,
+          "supportPodcast": false,
+          "supportScihub": false,
+          "nsfw": true
+        },
+        "radar": [
+          {
+            "source": [
+              "everia.club/tag/:tag"
+            ],
+            "target": "/tag/:tag"
+          }
+        ],
+        "name": "Images with tag",
+        "maintainers": [
+          "KTachibanaM",
+          "AiraNadih"
+        ],
+        "location": "tag.ts",
+        "module": () => import('@/routes/everia/tag.ts')
+      }
+    },
+    "apiRoutes": {},
+    "name": "EVERIA.CLUB",
+    "url": "everia.club"
+  },
   "fantia": {
     "routes": {
       "/search/:type?/:caty?/:period?/:order?/:rating?/:keyword?": {
@@ -15408,6 +15597,49 @@ export default {
     "name": "大公文匯網",
     "url": "www.tkww.hk",
     "lang": "zh-HK"
+  },
+  "toei": {
+    "routes": {
+      "/ridership": {
+        "path": "/ridership",
+        "name": "都営地下鉄 各駅乗降人員",
+        "url": "www.kotsu.metro.tokyo.jp",
+        "maintainers": [
+          "pseudoyu"
+        ],
+        "example": "/toei/ridership",
+        "parameters": {},
+        "description": "Annual 各駅乗降人員 (one-day average of boarding + alighting passengers) for every 都営地下鉄 station, read from the Tokyo open-data catalog dataset [地下鉄関連情報 各駅乗降人員一覧](https://catalog.data.metro.tokyo.lg.jp/dataset/t000018d0000000030) (CC BY 4.0, one Shift_JIS CSV per line) — the operator's own [各駅乗降人員一覧](https://www.kotsu.metro.tokyo.jp/subway/kanren/passengers.html) page carries the same figures behind a browser challenge. One item per station and line (stations shared by two lines appear once per line with that line's figures); `_extra` follows the shared ridership shape with `daily_average` = 乗車 + 降車 and `measure: 'boarding_alighting'`. Only the current fiscal year is published and the files are overwritten in place; `pubDate` is the resource's last-modified date. Credit: 地下鉄関連情報 各駅乗降人員一覧、東京都・東京都交通局、CC BY 4.0.",
+        "categories": [
+          "other"
+        ],
+        "features": {
+          "requireConfig": false,
+          "requirePuppeteer": false,
+          "antiCrawler": false,
+          "supportRadar": true
+        },
+        "radar": [
+          {
+            "source": [
+              "www.kotsu.metro.tokyo.jp/subway/kanren/passengers.html",
+              "catalog.data.metro.tokyo.lg.jp/dataset/t000018d0000000030"
+            ],
+            "target": "/ridership"
+          }
+        ],
+        "location": "ridership.ts",
+        "module": () => import('@/routes/toei/ridership.ts')
+      }
+    },
+    "apiRoutes": {},
+    "name": "Toei Transportation",
+    "url": "www.kotsu.metro.tokyo.jp",
+    "description": "東京都交通局（都営地下鉄・都営バス・都電）",
+    "lang": "ja",
+    "ja": {
+      "name": "東京都交通局"
+    }
   },
   "topbook": {
     "routes": {
@@ -18024,6 +18256,65 @@ export default {
     "lang": "zh-CN",
     "description": "FoodTalks 全球食品资讯网是一个提供食品饮料行业新闻、资讯、分析和商业资源的领先在线平台。它涵盖行业趋势、市场动态、产品创新、投融资信息以及企业新闻，连接行业内的专业人士、企业和消费者。"
   },
+  "gamebase": {
+    "routes": {
+      "/news/:type?/:category?": {
+        "path": "/news/:type?/:category?",
+        "name": "新聞",
+        "url": "news.gamebase.com.tw",
+        "maintainers": [
+          "nczitzk"
+        ],
+        "example": "/gamebase/news",
+        "parameters": {
+          "type": "類型，見下表，預設為 newslist",
+          "category": "分類，預設為 `all`，即全部，可在對應分類頁 URL 中找到"
+        },
+        "description": "::: tip\n若訂閱 [手機遊戲新聞](https://news.gamebase.com.tw/news/newslist?type=mobile)，網址為 `https://news.gamebase.com.tw/news/newslist?type=mobile`，請截取 `https://news.gamebase.com.tw/news/` 到末尾的部分 `newslist` 作為 `type` 參數填入，`mobile` 作為 `category` 參數填入，此時目標路由為 [`/gamebase/news/newslist/mobile`](https://rsshub.app/gamebase/news/newslist/mobile)。\n:::\n\n| newslist | r18list |\n| -------- | ------- |",
+        "categories": [
+          "game"
+        ],
+        "features": {
+          "requireConfig": false,
+          "requirePuppeteer": false,
+          "antiCrawler": false,
+          "supportRadar": true,
+          "supportBT": false,
+          "supportPodcast": false,
+          "supportScihub": false
+        },
+        "radar": [
+          {
+            "source": [
+              "news.gamebase.com.tw/news",
+              "news.gamebase.com.tw/news/:type"
+            ]
+          }
+        ],
+        "view": 0,
+        "zh": {
+          "path": "/news/:type?/:category?",
+          "name": "新闻",
+          "url": "news.gamebase.com.tw",
+          "maintainers": [
+            "nczitzk"
+          ],
+          "example": "/gamebase/news",
+          "parameters": {
+            "type": "类型，见下表，默认为 newslist",
+            "category": "分类，默认为 `all`，即全部，可在对应分类页 URL 中找到"
+          },
+          "description": "::: tip\n若订阅 [手机游戏新闻](https://news.gamebase.com.tw/news/newslist?type=mobile)，网址为 `https://news.gamebase.com.tw/news/newslist?type=mobile`，请截取 `https://news.gamebase.com.tw/news/` 到末尾的部分 `newslist` 作为 `type` 参数填入，`mobile` 作为 `category` 参数填入，此时目标路由为 [`/gamebase/news/newslist/mobile`](https://rsshub.app/gamebase/news/newslist/mobile)。\n:::\n\n| newslist | r18list |\n| -------- | ------- |"
+        },
+        "location": "news.tsx",
+        "module": () => import('@/routes/gamebase/news.tsx')
+      }
+    },
+    "apiRoutes": {},
+    "name": "遊戲基地 Gamebase",
+    "url": "news.gamebase.com.tw",
+    "lang": "zh-TW"
+  },
   "gettr": {
     "routes": {
       "/user/:id": {
@@ -20338,7 +20629,7 @@ export default {
         "radar": [
           {
             "source": [
-              "www.shanghaimuseum.net/mu/frontend/pg/infomation/news"
+              "www.shanghaimuseum.cn/mu/frontend/pg/infomation/news"
             ],
             "target": "/information/news"
           }
@@ -20362,7 +20653,7 @@ export default {
         "radar": [
           {
             "source": [
-              "www.shanghaimuseum.net/mu/frontend/pg/display/offline-exhibit"
+              "www.shanghaimuseum.cn/mu/frontend/pg/display/offline-exhibit"
             ],
             "target": "/display/offline-exhibit"
           }
@@ -20373,7 +20664,7 @@ export default {
     },
     "apiRoutes": {},
     "name": "Shanghai Museum",
-    "url": "www.shanghaimuseum.net",
+    "url": "www.shanghaimuseum.cn",
     "zh": {
       "name": "上海博物馆"
     }
@@ -21264,6 +21555,61 @@ export default {
     "name": "新快报",
     "url": "xkb.com.cn",
     "lang": "zh-CN"
+  },
+  "yinxubwg": {
+    "routes": {
+      "/notice": {
+        "path": "/notice",
+        "categories": [
+          "travel"
+        ],
+        "example": "/yinxubwg/notice",
+        "name": "Notice",
+        "maintainers": [
+          "magazian"
+        ],
+        "radar": [
+          {
+            "source": [
+              "www.yinxubwg.cn/yxgw/notice"
+            ],
+            "target": "/notice"
+          }
+        ],
+        "location": "notice.ts",
+        "module": () => import('@/routes/yinxubwg/notice.ts')
+      },
+      "/exhibitionIndex/:type": {
+        "path": "/exhibitionIndex/:type",
+        "categories": [
+          "travel"
+        ],
+        "example": "/yinxubwg/exhibitionIndex/2",
+        "parameters": {
+          "type": "Exhibition type. Supported values: `1` (Permanent Exhibition), `2` (Temporary Exhibition), `3` (Past Exhibitions)."
+        },
+        "name": "Exhibition Information",
+        "maintainers": [
+          "magazian"
+        ],
+        "radar": [
+          {
+            "source": [
+              "www.yinxubwg.cn/yxgw/exhibitionIndex"
+            ],
+            "target": "/exhibitionIndex/:type"
+          }
+        ],
+        "location": "exhibition.tsx",
+        "module": () => import('@/routes/yinxubwg/exhibition.tsx')
+      }
+    },
+    "apiRoutes": {},
+    "name": "Yinxu Museum",
+    "url": "www.yinxubwg.cn",
+    "zh": {
+      "name": "殷墟博物馆"
+    }
   },
   "yoasobi-music": {
     "routes": {
@@ -22326,39 +22672,7 @@ export default {
   "ff14": {
     "routes": {
       "/global/:lang/:type?": {
-        "path": [
-          "/global/:lang/:type?",
-          "/ff14_global/:lang/:type?"
-        ],
-        "categories": [
-          "game"
-        ],
-        "example": "/ff14/global/na/all",
-        "parameters": {
-          "lang": "Region",
-          "type": "Category, `all` by default"
-        },
-        "features": {
-          "requireConfig": false,
-          "requirePuppeteer": false,
-          "antiCrawler": false,
-          "supportBT": false,
-          "supportPodcast": false,
-          "supportScihub": false
-        },
-        "name": "FINAL FANTASY XIV (The Lodestone)",
-        "maintainers": [
-          "kmod-midori"
-        ],
-        "description": "Region\n\n| North Ameria | Europe | France | Germany | Japan |\n| ------------ | ------ | ------ | ------- | ----- |\n| na           | eu     | fr     | de      | jp    |\n\nCategory\n\n| all | topics | notices | maintenance | updates | status | developers |\n| --- | ------ | ------- | ----------- | ------- | ------ | ---------- |",
-        "location": "ff14-global.ts",
-        "module": () => import('@/routes/ff14/ff14-global.ts')
-      },
-      "/ff14_global/:lang/:type?": {
-        "path": [
-          "/global/:lang/:type?",
-          "/ff14_global/:lang/:type?"
-        ],
+        "path": "/global/:lang/:type?",
         "categories": [
           "game"
         ],
@@ -22384,49 +22698,7 @@ export default {
         "module": () => import('@/routes/ff14/ff14-global.ts')
       },
       "/zh/:type?": {
-        "path": [
-          "/zh/:type?",
-          "/ff14_zh/:type?"
-        ],
-        "categories": [
-          "game"
-        ],
-        "example": "/ff14/zh/news",
-        "parameters": {
-          "type": "分类名，预设为 `all`"
-        },
-        "features": {
-          "requireConfig": false,
-          "requirePuppeteer": false,
-          "antiCrawler": false,
-          "supportBT": false,
-          "supportPodcast": false,
-          "supportScihub": false
-        },
-        "radar": [
-          {
-            "source": [
-              "ff.web.sdo.com/web8/index.html"
-            ],
-            "target": "/zh"
-          }
-        ],
-        "name": "最终幻想 14 国服",
-        "maintainers": [
-          "Kiotlin",
-          "ZeroClad",
-          "15x15G"
-        ],
-        "url": "ff.web.sdo.com/web8/index.html",
-        "description": "| 新闻 | 公告     | 活动   | 广告      | 所有 |\n| ---- | -------- | ------ | --------- | ---- |\n| news | announce | events | advertise | all  |",
-        "location": "ff14-zh.ts",
-        "module": () => import('@/routes/ff14/ff14-zh.ts')
-      },
-      "/ff14_zh/:type?": {
-        "path": [
-          "/zh/:type?",
-          "/ff14_zh/:type?"
-        ],
+        "path": "/zh/:type?",
         "categories": [
           "game"
         ],
@@ -28202,53 +28474,6 @@ export default {
     "url": "19lou.com",
     "lang": "zh-CN"
   },
-  "1lou": {
-    "routes": {
-      "/:params{.+}?": {
-        "path": "/:params{.+}?",
-        "name": "通用",
-        "url": "1lou.me",
-        "maintainers": [
-          "falling",
-          "nczitzk"
-        ],
-        "example": "/1lou/forum-2-1",
-        "parameters": {
-          "params": "路径参数，可以在对应页面的 URL 中找到"
-        },
-        "description": "::: tip\n`1lou.me/` 后的内容填入 params 参数，以下是几个例子：\n\n若订阅 [大陆电视剧](https://www.1lou.me/forum-2-1.htm?tagids=0_97_0_0)，网址为 `https://www.1lou.me/forum-2-1.htm?tagids=0_97_0_0`。截取 `https://www.1lou.me/` 到末尾 `.htm` 的部分 `forum-2-1` 作为参数，并补充 `tagids`，此时路由为 [`/1lou/forum-2-1?tagids=0_97_0_0`](https://rsshub.app/1lou/forum-2-1?tagids=0_97_0_0)。\n\n若订阅 [最新发帖电视剧](https://www.1lou.me/forum-2-1.htm?orderby=tid\\&digest=0)，网址为 `https://www.1lou.me/forum-2-1.htm?orderby=tid&digest=0`。截取 `https://www.1lou.me/` 到末尾 `.htm` 的部分 `forum-2-1` 作为参数，并补充 `orderby`，此时路由为 [`/1lou/forum-2-1?orderby=tid`](https://rsshub.app/1lou/forum-2-1?orderby=tid)。\n\n若订阅 [搜素繁花主题贴](https://www.1lou.me/search-_E7_B9_81_E8_8A_B1-1.htm)，网址为 `https://www.1lou.me/search-_E7_B9_81_E8_8A_B1-1.htm`。截取 `https://www.1lou.me/` 到末尾 `.htm` 的部分 `search-_E7_B9_81_E8_8A_B1-1` 作为参数，此时路由为 [`/1lou/search-_E7_B9_81_E8_8A_B1-1`](https://rsshub.app/1lou/search-_E7_B9_81_E8_8A_B1-1)。\n:::",
-        "categories": [
-          "multimedia"
-        ],
-        "features": {
-          "requireConfig": false,
-          "requirePuppeteer": false,
-          "antiCrawler": false,
-          "supportRadar": true,
-          "supportBT": false,
-          "supportPodcast": false,
-          "supportScihub": false
-        },
-        "radar": [
-          {
-            "source": [
-              "1lou.me/:params"
-            ]
-          }
-        ],
-        "location": "index.ts",
-        "module": () => import('@/routes/1lou/index.ts')
-      }
-    },
-    "apiRoutes": {},
-    "name": "BT 之家 1LOU 站",
-    "url": "1lou.me",
-    "categories": [
-      "multimedia"
-    ],
-    "description": "",
-    "lang": "zh-CN"
-  },
   "1point3acres": {
     "routes": {
       "/user/:id/posts": {
@@ -29789,6 +30014,53 @@ export default {
     "url": "www.30secondsofcode.org",
     "lang": "en"
   },
+  "35mmc": {
+    "routes": {
+      "/:category?": {
+        "path": "/:category?",
+        "categories": [
+          "picture"
+        ],
+        "view": 0,
+        "example": "/35mmc/5-frames-with",
+        "parameters": {
+          "category": "Category slug, see the table below or the URL of a category page. All posts by default"
+        },
+        "features": {
+          "requireConfig": false,
+          "requirePuppeteer": false,
+          "antiCrawler": false,
+          "supportBT": false,
+          "supportPodcast": false,
+          "supportScihub": false
+        },
+        "radar": [
+          {
+            "source": [
+              "www.35mmc.com/category/:category",
+              "www.35mmc.com/category/:parent/:category",
+              "www.35mmc.com/"
+            ]
+          }
+        ],
+        "name": "Posts",
+        "maintainers": [
+          "IvanWng97"
+        ],
+        "description": "The official feed only carries excerpts; this route returns the full post with all images.\n\n| Category                      | Slug                              |\n| ----------------------------- | --------------------------------- |\n| 5 frames with...              | `5-frames-with`                   |\n| Gear Reviews & Experiences    | `reviews-experinces`              |\n| Photos & Projects             | `photos-projects`                 |\n| Theory & Reflections          | `theory-reflections`              |\n| Philosophy & Reflections      | `philosophy-reflections`          |\n| News & Events                 | `news-events`                     |\n| One Shot Story                | `one-shot-story`                  |\n| Tutorials & Knowhow           | `tutorials-knowhow`               |\n| Processes, Tutorials & Guides | `tutorials`                       |\n| Learning Journeys             | `learning-journeys`               |\n| Film                          | `film`                            |\n| Lenses                        | `lenses`                          |\n| Gear Theory                   | `gear-theory`                     |\n| Compact Cameras               | `compact-cameras`                 |\n| Point & Shoot                 | `point-shoot-film-camera-reviews` |\n| Rangefinder Cameras           | `rangefinder-cameras`             |\n| SLRs                          | `slrs`                            |\n| Scale Focus                   | `scale-focus-cameras`             |\n| Medium & Large Format         | `medium-format`                   |\n| Digital Cameras               | `digital-cameras`                 |\n| Accessories & More            | `accessories-more`                |\n| Mods, DIY & Lens Adapting     | `lens-adapting-mods`              |",
+        "location": "index.tsx",
+        "module": () => import('@/routes/35mmc/index.tsx')
+      }
+    },
+    "apiRoutes": {},
+    "name": "35mmc",
+    "url": "35mmc.com",
+    "categories": [
+      "picture"
+    ],
+    "description": "Film photography blog: camera and lens reviews, \"5 frames with…\", photo projects and essays.",
+    "lang": "en"
+  },
   "3dmgame": {
     "routes": {
       "/games/:name/:type?": {
@@ -30999,6 +31271,35 @@ export default {
     "description": "::: tip\n91porn has multiple backup domains, routes use the permanent domain `https://91porn.com` by default. If the domain is not accessible, you can add `?domain=<domain>` to specify the domain to be used. If you want to specify the backup domain to `https://0122.91p30.com`, you can add `?domain=0122.91p30.com` to the end of all 91porn routes, then the route will become [`/91porn?domain=0122.91p30.com`](https://rsshub.app/91porn?domain=0122.91p30.com)\n:::",
     "lang": "zh-CN"
   },
+  "98zhibo": {
+    "routes": {
+      "/zuqiujijin": {
+        "path": "/zuqiujijin",
+        "categories": [
+          "sport"
+        ],
+        "example": "/98zhibo/zuqiujijin",
+        "name": "足球集锦",
+        "maintainers": [
+          "chouj"
+        ],
+        "radar": [
+          {
+            "source": [
+              "www.98zhibo.com/zuqiujijin/"
+            ],
+            "target": "/zuqiujijin"
+          }
+        ],
+        "location": "zuqiujijin.ts",
+        "module": () => import('@/routes/98zhibo/zuqiujijin.ts')
+      }
+    },
+    "apiRoutes": {},
+    "name": "98直播吧",
+    "url": "www.98zhibo.com",
+    "lang": "zh-CN"
+  },
   "99percentinvisible": {
     "routes": {
       "/transcript": {
@@ -31313,6 +31614,147 @@ export default {
     "name": "ABC News (Australian Broadcasting Corporation)",
     "url": "abc.net.au",
     "lang": "en"
+  },
+  "abc-tenpo": {
+    "routes": {
+      "/detail/:id": {
+        "path": "/detail/:id",
+        "name": "物件詳細",
+        "url": "www.abc-tenpo.com",
+        "maintainers": [
+          "pseudoyu"
+        ],
+        "example": "/abc-tenpo/detail/62829",
+        "parameters": {
+          "id": {
+            "description": "The numeric 物件 id, i.e. the `62829` in `https://www.abc-tenpo.com/property/view/62829`"
+          }
+        },
+        "description": "One listing on ABC 店舗，for following a single property rather than a whole prefecture.\n\nIts reason to exist is the address. The listing route can only reach the ward (`東京都文京区`) because the visible 所在地 field is truncated and marked 会員限定 — but the document title carries the address in full, `東京都文京区湯島2-31-17・…`, so `address_hint` here reaches the 丁目 **and the 番地**. That makes this one of the few sources that publishes a 番地 to a guest at all.\n\n`_extra` follows the shared listing shape, including 現業態，業種制限，飲食条件 and the 居抜き / 重飲食可 tags; 構造，階建，席数 and 初期費用 are kept in `raw`. 保証金，礼金 and 造作譲渡料 are members-only on this site and stay `null`. The only date the site publishes is 情報更新日，so `listed_at` and `pubDate` are a last-modified date rather than a first-listed one — do not read them as a publication date.",
+        "categories": [
+          "other"
+        ],
+        "features": {
+          "requireConfig": false,
+          "requirePuppeteer": false,
+          "antiCrawler": false,
+          "supportRadar": true
+        },
+        "radar": [
+          {
+            "source": [
+              "www.abc-tenpo.com/property/view/:id"
+            ],
+            "target": "/detail/:id"
+          }
+        ],
+        "location": "detail.ts",
+        "module": () => import('@/routes/abc-tenpo/detail.ts')
+      },
+      "/property/:pref?": {
+        "path": "/property/:pref?",
+        "name": "新着物件",
+        "url": "www.abc-tenpo.com",
+        "maintainers": [
+          "pseudoyu"
+        ],
+        "example": "/abc-tenpo/property/tokyo",
+        "parameters": {
+          "pref": {
+            "description": "Prefecture slug or JIS X 0401 code; omit for all of 東京・神奈川・千葉・埼玉",
+            "options": [
+              {
+                "value": "tokyo",
+                "label": "東京都 (13)"
+              },
+              {
+                "value": "kanagawa",
+                "label": "神奈川県 (14)"
+              },
+              {
+                "value": "saitama",
+                "label": "埼玉県 (11)"
+              },
+              {
+                "value": "chiba",
+                "label": "千葉県 (12)"
+              }
+            ]
+          }
+        },
+        "description": "Listings on ABC 店舗 sorted by 新着順 (first page, 20 listings). Each item's `_extra` carries the structured listing fields (賃料，坪，階，最寄駅，引渡状態，現業態，業種制限，飲食条件，情報更新日，…) parsed from the list and detail pages; unknown values are `null`. 保証金，礼金 and 造作譲渡料 are members-only on the site and therefore always `null`; the item date is the site's 情報更新日.\n\n| Query   | Description                                                                  | Default |\n| ------- | ---------------------------------------------------------------------------- | ------- |\n| `limit` | Number of listings to process (detail pages are fetched per listing), max 20 | 20      |",
+        "categories": [
+          "other"
+        ],
+        "features": {
+          "requireConfig": false,
+          "requirePuppeteer": false,
+          "antiCrawler": false,
+          "supportRadar": true
+        },
+        "radar": [
+          {
+            "source": [
+              "www.abc-tenpo.com/property/search",
+              "www.abc-tenpo.com/feature/new_arrival",
+              "www.abc-tenpo.com/"
+            ],
+            "target": "/property"
+          }
+        ],
+        "location": "property.ts",
+        "module": () => import('@/routes/abc-tenpo/property.ts')
+      },
+      "/rent-benchmark/:pref?": {
+        "path": "/rent-benchmark/:pref?",
+        "name": "エリア別賃料相場",
+        "url": "www.abc-tenpo.com",
+        "maintainers": [
+          "pseudoyu"
+        ],
+        "example": "/abc-tenpo/rent-benchmark/tokyo",
+        "parameters": {
+          "pref": {
+            "description": "Prefecture slug; the site currently publishes 東京23区 only",
+            "default": "tokyo",
+            "options": [
+              {
+                "value": "tokyo",
+                "label": "東京都"
+              }
+            ]
+          }
+        },
+        "description": "Ward-level restaurant-property rent benchmarks (坪単価) from ABC 店舗's エリア別の賃料相場 page, one item per 区 of 東京 23 区. The page gives a single unqualified 相場 figure per ward (「賃料相場は坪単価」, compiled from the site's own listings) — it is stored in `_extra.rent_per_tsubo_jpy` because the site does not say whether it is a mean or a median; 平均 / 中央値 / 最高 / 最低，sample count, period and 更新日 are not published and stay `null`. The page is cached for one day.",
+        "categories": [
+          "other"
+        ],
+        "features": {
+          "requireConfig": false,
+          "requirePuppeteer": false,
+          "antiCrawler": false,
+          "supportRadar": true
+        },
+        "radar": [
+          {
+            "source": [
+              "www.abc-tenpo.com/feature/rent"
+            ],
+            "target": "/rent-benchmark"
+          }
+        ],
+        "location": "rent-benchmark.ts",
+        "module": () => import('@/routes/abc-tenpo/rent-benchmark.ts')
+      }
+    },
+    "apiRoutes": {},
+    "name": "ABC Tenpo",
+    "url": "www.abc-tenpo.com",
+    "description": "ABC 店舗 — 飲食店向け居抜き・貸店舗物件情報サイト",
+    "lang": "ja",
+    "ja": {
+      "name": "ABC店舗"
+    }
   },
   "abskoop": {
     "routes": {
@@ -31649,6 +32091,31 @@ export default {
         "description": "| 二次元画师 | 综合 | 生活情感 | 游戏 | 动漫文化 | 漫画文学 |\n| ---------- | ---- | -------- | ---- | -------- | -------- |\n| 184        | 110  | 73       | 164  | 74       | 75       |\n\n| 最新发表   | 最新动态        | 最热文章 |\n| ---------- | --------------- | -------- |\n| createTime | lastCommentTime | hotScore |\n\n| 时间不限 | 24 小时 | 三天     | 一周    | 一个月   |\n| -------- | ------- | -------- | ------- | -------- |\n| all      | oneDay  | threeDay | oneWeek | oneMonth |",
         "location": "article.ts",
         "module": () => import('@/routes/acfun/article.ts')
+      },
+      "/user/article/:uid": {
+        "path": "/user/article/:uid",
+        "radar": [
+          {
+            "source": [
+              "www.acfun.cn/u/:id"
+            ],
+            "target": "/user/article/:id"
+          }
+        ],
+        "name": "用户文章",
+        "parameters": {
+          "uid": "用户 UID"
+        },
+        "categories": [
+          "anime"
+        ],
+        "example": "/acfun/user/article/1384329",
+        "view": 0,
+        "maintainers": [
+          "tiaod"
+        ],
+        "location": "user-article.ts",
+        "module": () => import('@/routes/acfun/user-article.ts')
       },
       "/user/video/:uid/:embed?": {
         "path": "/user/video/:uid/:embed?",
@@ -32563,6 +33030,74 @@ export default {
     "name": "安徽建筑大学",
     "url": "news.ahjzu.edu.cn",
     "lang": "zh-CN"
+  },
+  "ahm": {
+    "routes": {
+      "/news/abxw": {
+        "path": "/news/abxw",
+        "categories": [
+          "travel"
+        ],
+        "example": "/ahm/news/abxw",
+        "features": {
+          "requireConfig": false,
+          "requirePuppeteer": false,
+          "antiCrawler": true,
+          "supportBT": false,
+          "supportPodcast": false,
+          "supportScihub": false
+        },
+        "radar": [
+          {
+            "source": [
+              "www.ahm.cn/News/List/abxw"
+            ],
+            "target": "/news/abxw"
+          }
+        ],
+        "name": "安博新闻",
+        "maintainers": [
+          "magazian"
+        ],
+        "location": "abxw.ts",
+        "module": () => import('@/routes/ahm/abxw.ts')
+      },
+      "/exhibition/xztj": {
+        "path": "/exhibition/xztj",
+        "categories": [
+          "travel"
+        ],
+        "example": "/ahm/exhibition/xztj",
+        "features": {
+          "requireConfig": false,
+          "requirePuppeteer": false,
+          "antiCrawler": true,
+          "supportBT": false,
+          "supportPodcast": false,
+          "supportScihub": false
+        },
+        "radar": [
+          {
+            "source": [
+              "www.ahm.cn/Exhibition/TListNow/xztj"
+            ],
+            "target": "/exhibition/xztj"
+          }
+        ],
+        "name": "Special Exhibition",
+        "maintainers": [
+          "magazian"
+        ],
+        "location": "xztj.tsx",
+        "module": () => import('@/routes/ahm/xztj.tsx')
+      }
+    },
+    "apiRoutes": {},
+    "name": "Anhui Museum",
+    "url": "www.ahm.cn",
+    "zh": {
+      "name": "安徽博物院"
+    }
   },
   "ahmu": {
     "routes": {
@@ -37473,6 +38008,55 @@ export default {
     "url": "atcoder.jp",
     "lang": "en"
   },
+  "athome": {
+    "routes": {
+      "/rent-store/:pref/:city": {
+        "path": "/rent-store/:pref/:city",
+        "name": "貸店舗",
+        "url": "www.athome.co.jp",
+        "maintainers": [
+          "pseudoyu"
+        ],
+        "example": "/athome/rent-store/tokyo/shinjuku-city",
+        "parameters": {
+          "pref": {
+            "description": "都道府県 slug, e.g. `tokyo`, `kanagawa`"
+          },
+          "city": {
+            "description": "市区町村 slug as the site spells it — `shinjuku-city`, `minato-city`, `yokohama_naka-city`. Note the underscore in 政令指定都市 slugs; a hyphen there 404s."
+          }
+        },
+        "description": "貸店舗 listings on アットホーム for one 市区町村，newest first.\n\nThis route needs a browser, and the browser is not a convenience. The page is Angular Universal SSR behind a JavaScript interstitial, and only the settled page carries the `#serverApp-state` payload the route reads. A plain HTTP client is served normally for about four requests and then gets the 「認証中」 interstitial on everything afterwards, and pacing the requests 3s apart does not lift it. A browser gets a far larger allowance — dozens of navigations — but **is not exempt**: push hard enough and it is refused too, so this is a matter of cadence rather than of using the right client. The interstitial reloads itself, which stops a `domcontentloaded` navigation from ever settling, so the page is opened with `commit` and every wait is bounded here, against a deadline measured from the start of the request rather than from the navigation.\n\nBeing refused and being served slowly are told apart rather than guessed at: one check watches for `#serverApp-state` and for the 認証中 title at the same time, so a refused client is reported in about a second while a slow one keeps the full window. That window is wide (26s for the list page) because `#serverApp-state` sits roughly 62% of the way into a 2.4MB document — a throttled client has to receive about 1.5MB before it can appear — and the width costs a refused client nothing. For the same reason the page's images, fonts, stylesheets and media are not fetched at all, leaving the connection to the one response that matters; scripts are left alone, since the interstitial needs one to clear itself. **Being blocked is a volume problem, not a retry problem** — poll less often rather than retrying, and keep the cache warm. The route waits for `#serverApp-state` on the **list** page and **throws if it never appears**, so an unsettled page surfaces as an error rather than as a silently empty feed.\n\n情報公開日，the coordinates and the fee detail exist only on each listing's own page, so the route visits them — reusing one browser tab rather than opening a browser per listing, and caching per listing so a repeated poll only pays for listings it has not seen before.\n\nEach of those visits is a full browser navigation, and on a modest VPS one can take several seconds, so at the default `limit` a cold cache can outrun RSSHub's own 30s request timeout. Enrichment therefore runs on a 20s budget: listings reached within it are enriched, the rest are returned with their list-page fields and a warning is logged. A cache hit needs no navigation and so never draws on the budget, which means a warm poll still returns everything fully enriched. A listing whose own page fails is logged and returned with list-page fields too — only the list page failing is fatal.\n\n**Everything the listing itself states — 所在地 down to the 丁目，階，面積，賃料 and the ward — is already on the list page.** If that is all you need, `detail=0` skips the per-listing visits entirely and makes this an ordinary fast route; `listed_at`，`pubDate`, the coordinates and the fee detail are then `null`.\n\n**The site's own ordering is not chronological**, so the feed is re-sorted by 情報公開日，newest first. Without that a newly published listing could sit well down the list and never reach a monitor watching the first page.\n\n`_extra` follows the shared listing shape: `listed_at` and `pubDate` from 情報公開日，`heavy_food_ok` and `business_limit` from the published notice flags (「飲食店不可」 etc.), `fixtures_transfer_jpy` from 造作譲渡，`tags` from the site's 特徴 list, and `condition` / `prev_business` from the 店舗プラス block (`isInuki` / `isSkeleton` / `lastTenanto`) rather than guessed from prose — though most listings leave those two unset. `deposit_months` prefers 保証金 and falls back to 敷金.\n\n`raw` additionally carries what the shared contract has no field for: `lat` / `lng`, the full 所在地 including its 都道府県，建物名 + 部屋番号，設備，築年月，敷引，償却，その他一時金 and the 定期借家 flag.\n\n| Query    | Description                                                               | Default |\n| -------- | ------------------------------------------------------------------------- | ------- |\n| `limit`  | Listings to return, max 30                                                | 10      |\n| `detail` | `0` skips the per-listing detail visits and returns list-page fields only | `1`     |",
+        "categories": [
+          "other"
+        ],
+        "features": {
+          "requireConfig": false,
+          "requirePuppeteer": true,
+          "antiCrawler": true,
+          "supportRadar": true
+        },
+        "radar": [
+          {
+            "source": [
+              "www.athome.co.jp/rent_store/:pref/:city/list"
+            ],
+            "target": "/rent-store/:pref/:city"
+          }
+        ],
+        "location": "rent-store.ts",
+        "module": () => import('@/routes/athome/rent-store.ts')
+      }
+    },
+    "apiRoutes": {},
+    "name": "at home",
+    "url": "www.athome.co.jp",
+    "description": "アットホーム — 不動産情報サイト（貸店舗・事業用物件）",
+    "lang": "ja",
+    "ja": {
+      "name": "アットホーム"
+    }
+  },
   "augmentcode": {
     "routes": {
       "/blog": {
@@ -42070,6 +42654,150 @@ export default {
     },
     "lang": "en"
   },
+  "bukenavi": {
+    "routes": {
+      "/detail/:id/:region?": {
+        "path": "/detail/:id/:region?",
+        "name": "物件詳細",
+        "url": "bukenavi.jp",
+        "maintainers": [
+          "pseudoyu"
+        ],
+        "example": "/bukenavi/detail/54379",
+        "parameters": {
+          "id": {
+            "description": "The numeric 物件 id, i.e. the `54379` in `https://bukenavi.jp/kanto/object/54379`"
+          },
+          "region": {
+            "description": "Region the listing belongs to; defaults to `kanto`",
+            "default": "kanto",
+            "options": [
+              {
+                "value": "kanto",
+                "label": "kanto"
+              },
+              {
+                "value": "kansai",
+                "label": "kansai"
+              },
+              {
+                "value": "tokai",
+                "label": "tokai"
+              },
+              {
+                "value": "kyushu",
+                "label": "kyushu"
+              }
+            ]
+          }
+        },
+        "description": "One listing on ぶけなび，for following a single property rather than a whole area — a listing's 賃料 and availability change over its life.\n\nIt adds what the area route's cards omit: 乗降者数 for the nearest station, 構造，竣工年月，立地，間口，業種，不可業態，営業年数 and 特記事項，plus exact 面積 and 階数.\n\n**With an account it also reads the 会員限定 fields.** Set `BUKENAVI_EMAIL` and `BUKENAVI_PASSWORD` and 住所 comes through to the 番地 (`東京都新宿区歌舞伎町 2-9-10`), plus 物件名，保証金・敷金，礼金，償却，共益費，造作譲渡金額，契約年数，座席，引渡し時期 and an explicit 居抜き / スケルトン. Both variables are optional and the route is fully usable without them — it simply stays a guest and leaves those `null`, which is the behaviour described below.\n\n**Without an account the exact location is still in `raw.lat` / `raw.lng`, not in the address.** ぶけなび truncates 住所 to the 町 for guests and says so on the page — 「東京都新宿区歌舞伎町 ※詳細はお問い合わせください（住所詳細は会員限定）」 — so `address_hint` stops at the 町. The page's own map pin does not: `initMap()` is called with the listing's coordinates, and five 歌舞伎町 listings carry five different pairs spread over roughly 265m × 440m, so these are per-property positions rather than a geocode of the town. That makes them finer than the 丁目 the address withholds, and no account is needed for them. 敷金，礼金 and 造作 are absent from the guest view, and the site publishes no listing date, so those stay `null`.",
+        "categories": [
+          "other"
+        ],
+        "features": {
+          "requireConfig": [
+            {
+              "name": "BUKENAVI_EMAIL",
+              "optional": true,
+              "description": "ぶけなび account e-mail. Optional — without it the route reads the public view."
+            },
+            {
+              "name": "BUKENAVI_PASSWORD",
+              "optional": true,
+              "description": "ぶけなび account password. Optional — without it the route reads the public view."
+            }
+          ],
+          "requirePuppeteer": false,
+          "antiCrawler": false,
+          "supportRadar": true
+        },
+        "radar": [
+          {
+            "source": [
+              "bukenavi.jp/:region/object/:id"
+            ],
+            "target": "/detail/:id/:region"
+          }
+        ],
+        "location": "detail.ts",
+        "module": () => import('@/routes/bukenavi/detail.ts')
+      },
+      "/object/:region?/:pref?/:city?": {
+        "path": "/object/:region?/:pref?/:city?",
+        "name": "新着物件",
+        "url": "bukenavi.jp",
+        "maintainers": [
+          "pseudoyu"
+        ],
+        "example": "/bukenavi/object/kanto/tokyo",
+        "parameters": {
+          "region": {
+            "description": "Region",
+            "default": "kanto",
+            "options": [
+              {
+                "value": "kanto",
+                "label": "関東"
+              },
+              {
+                "value": "kansai",
+                "label": "関西"
+              },
+              {
+                "value": "tokai",
+                "label": "東海"
+              }
+            ]
+          },
+          "pref": "Prefecture slug (tokyo, kanagawa, saitama, chiba, osaka, kyoto, hyogo, aichi) or two-digit JIS X 0401 code; omit for the whole region",
+          "city": {
+            "description": "Optional 市区町村, as a 5-digit JIS X 0402 code (横浜市中区 `14104`, 新宿区 `13104`). Requires `pref` and must belong to it; omit for the whole prefecture."
+          }
+        },
+        "description": "New 居抜き listings on ぶけなび that are currently 募集中，newest first (first page, 10 listings) — for a region, a prefecture, or one 市区町村 when `city` is given. Each item's `_extra` carries the structured listing fields (賃料，坪，坪単価，階，最寄駅，前業態，業種制限，…) parsed from the list and detail pages; unknown values are `null`. The site does not publish listing dates, so items have no `pubDate`.\n\n**With an account it also reads the 会員限定 fields.** Set `BUKENAVI_EMAIL` and `BUKENAVI_PASSWORD` and 住所 comes through to the 番地 (`東京都新宿区歌舞伎町 2-9-10`), plus 物件名，保証金・敷金，礼金，償却，共益費，造作譲渡金額，契約年数，座席 and an explicit 居抜き / スケルトン. Both variables are optional and the route is fully usable without them — it stays a guest and leaves those `null`.\n\n**Without an account the exact location is still in `raw.lat` / `raw.lng`, not in the address.** ぶけなび truncates 住所 to the 町 for guests (「東京都新宿区歌舞伎町 ※詳細はお問い合わせください（住所詳細は会員限定）」), but the page's own map pin does not: `initMap()` is called with the listing's coordinates, and five 歌舞伎町 listings carry five different pairs spread over roughly 265m × 440m, so these are per-property positions rather than a geocode of the town. They are finer than the 丁目 the address withholds, and no account is needed for them.\n\n`city` is a 5-digit JIS X 0402 code and the site pairs it with the prefecture, so both are required — `/bukenavi/object/kanto/kanagawa/14104` is 横浜市中区. A code that does not belong to `pref` is rejected rather than sent on.\n\nNote that `bukenavi.jp/{region}/area/{日本語}` pages are SEO landing pages carrying no listings; the 市区町村 filter is the `city[]` parameter on the list endpoint, which is what this route uses.",
+        "categories": [
+          "other"
+        ],
+        "features": {
+          "requireConfig": [
+            {
+              "name": "BUKENAVI_EMAIL",
+              "optional": true,
+              "description": "ぶけなび account e-mail. Optional — without it the route reads the public view."
+            },
+            {
+              "name": "BUKENAVI_PASSWORD",
+              "optional": true,
+              "description": "ぶけなび account password. Optional — without it the route reads the public view."
+            }
+          ],
+          "requirePuppeteer": false,
+          "antiCrawler": false,
+          "supportRadar": true
+        },
+        "radar": [
+          {
+            "source": [
+              "bukenavi.jp/:region/object/list",
+              "bukenavi.jp/:region"
+            ],
+            "target": "/object/:region"
+          }
+        ],
+        "location": "object.ts",
+        "module": () => import('@/routes/bukenavi/object.ts')
+      }
+    },
+    "apiRoutes": {},
+    "name": "Bukenavi",
+    "url": "bukenavi.jp",
+    "description": "ぶけなび — 飲食店の居抜き物件専門サイト",
+    "lang": "ja",
+    "ja": {
+      "name": "ぶけなび"
+    }
+  },
   "bulianglin": {
     "routes": {
       "/": {
@@ -42994,6 +43722,142 @@ export default {
     "url": "www.canada.ca",
     "description": "Government of Canada news by department",
     "lang": "en"
+  },
+  "canaeru": {
+    "routes": {
+      "/:pref?/:city?": {
+        "path": "/:pref?/:city?",
+        "name": "居抜き・貸店舗物件",
+        "url": "canaeru.usen.com",
+        "maintainers": [
+          "pseudoyu"
+        ],
+        "example": "/canaeru/tokyo/13104",
+        "parameters": {
+          "pref": {
+            "description": "Prefecture",
+            "default": "tokyo",
+            "options": [
+              {
+                "value": "tokyo",
+                "label": "東京都"
+              },
+              {
+                "value": "kanagawa",
+                "label": "神奈川県"
+              },
+              {
+                "value": "saitama",
+                "label": "埼玉県"
+              },
+              {
+                "value": "chiba",
+                "label": "千葉県"
+              },
+              {
+                "value": "hokkaido",
+                "label": "北海道"
+              },
+              {
+                "value": "aichi",
+                "label": "愛知県"
+              },
+              {
+                "value": "shizuoka",
+                "label": "静岡県"
+              }
+            ]
+          },
+          "city": {
+            "description": "Optional 市区町村, as a 5-digit JIS X 0402 code (新宿区 `13104`, 港区 `13103`, 横浜市中区 `14104`). Must belong to `pref`; omit for the whole prefecture."
+          }
+        },
+        "description": "Listings on canaeru（USEN）for one prefecture — or one 市区町村 when `city` is given (`/canaeru/tokyo/13104` is 新宿区). Each item's `_extra` carries the shared listing fields (賃料，坪，坪単価，階，最寄駅，保証金，礼金，造作価格，現況，…) from the list and detail pages; unknown values are `null`, and the site's 「ー」 placeholder is treated as unknown rather than kept as text.\n\nTwo things this source does better than most: 住所 is published down to the 番地 rather than the 町，and the detail page carries map coordinates. `ListingExtra` has no coordinate fields, so they are passed through verbatim as `raw.lat` / `raw.lng`.\n\n`tags` are the site's own feature flags, keeping only those a listing actually has — the markup lists every flag and greys the rest out with `class=\"off\"` — and 居抜き / スケルトン among them is what sets `condition`.\n\nOne caveat on 造作価格: the publisher occasionally appends 万円 to a figure that is already in 円 (one listing reads `6,050,000万円`), so `fixtures_transfer_jpy` can carry an implausible value. The route parses what is published rather than second-guessing it, so treat `raw.fixtures` as the ground truth when the number looks wrong.\n\n関西 is not offered: the site serves it from a separate base path that could not be reached (`/bukken/osaka`, `/bukken_k/osaka` and `/bukken_o/osaka` all 404).\n\n| Query   | Description                                                                  | Default |\n| ------- | ---------------------------------------------------------------------------- | ------- |\n| `limit` | Number of listings to process (detail pages are fetched per listing), max 10 | 10      |",
+        "categories": [
+          "other"
+        ],
+        "features": {
+          "requireConfig": false,
+          "requirePuppeteer": false,
+          "antiCrawler": false,
+          "supportRadar": true
+        },
+        "radar": [
+          {
+            "source": [
+              "canaeru.usen.com/bukken/:pref/search/:city",
+              "canaeru.usen.com/bukken/:pref/search"
+            ],
+            "target": "/:pref"
+          }
+        ],
+        "location": "property.ts",
+        "module": () => import('@/routes/canaeru/property.ts')
+      }
+    },
+    "apiRoutes": {},
+    "name": "Canaeru",
+    "url": "canaeru.usen.com",
+    "description": "canaeru（USEN）— 飲食店開業向け 居抜き・貸店舗物件情報サイト",
+    "lang": "ja",
+    "ja": {
+      "name": "カナエル"
+    }
+  },
+  "canalmuseum": {
+    "routes": {
+      "/consulting/:type": {
+        "path": "/consulting/:type",
+        "categories": [
+          "travel"
+        ],
+        "example": "/canalmuseum/consulting/tzgg",
+        "parameters": {
+          "type": "News type, supported values: tzgg（通知公告）, xwdt（新闻动态）"
+        },
+        "radar": [
+          {
+            "source": [
+              "www.canalmuseum.org.cn/consulting.html"
+            ],
+            "target": "/consulting/tzgg"
+          }
+        ],
+        "name": "NEWS",
+        "maintainers": [
+          "magazian"
+        ],
+        "location": "consulting.ts",
+        "module": () => import('@/routes/canalmuseum/consulting.ts')
+      },
+      "/lszl": {
+        "path": "/lszl",
+        "categories": [
+          "travel"
+        ],
+        "example": "/canalmuseum/lszl",
+        "radar": [
+          {
+            "source": [
+              "www.canalmuseum.org.cn/lszl.html"
+            ],
+            "target": "/lszl"
+          }
+        ],
+        "name": "临时展览",
+        "maintainers": [
+          "magazian"
+        ],
+        "location": "lszl.tsx",
+        "module": () => import('@/routes/canalmuseum/lszl.tsx')
+      }
+    },
+    "apiRoutes": {},
+    "name": "The Grand Canal Museum of Beijing",
+    "url": "www.canalmuseum.org.cn",
+    "zh": {
+      "name": "北京大运河博物馆"
+    }
   },
   "capitalmuseum": {
     "routes": {
@@ -56642,6 +57506,14 @@ export default {
           "junfengP",
           "pseudoyu"
         ],
+        "features": {
+          "requireConfig": [
+            {
+              "name": "ALLOW_USER_SUPPLY_UNSAFE_DOMAIN",
+              "description": "Allow user supplied domain"
+            }
+          ]
+        },
         "description": "| Discuz X Series | Discuz 7.x Series |\n| --------------- | ----------------- |\n| x               | 7                 |",
         "location": "discuz.ts",
         "module": () => import('@/routes/discuz/discuz.ts')
@@ -56666,6 +57538,14 @@ export default {
           "junfengP",
           "pseudoyu"
         ],
+        "features": {
+          "requireConfig": [
+            {
+              "name": "ALLOW_USER_SUPPLY_UNSAFE_DOMAIN",
+              "description": "Allow user supplied domain"
+            }
+          ]
+        },
         "description": "| Discuz X Series | Discuz 7.x Series |\n| --------------- | ----------------- |\n| x               | 7                 |",
         "location": "discuz.ts",
         "module": () => import('@/routes/discuz/discuz.ts')
@@ -56690,6 +57570,14 @@ export default {
           "junfengP",
           "pseudoyu"
         ],
+        "features": {
+          "requireConfig": [
+            {
+              "name": "ALLOW_USER_SUPPLY_UNSAFE_DOMAIN",
+              "description": "Allow user supplied domain"
+            }
+          ]
+        },
         "description": "| Discuz X Series | Discuz 7.x Series |\n| --------------- | ----------------- |\n| x               | 7                 |",
         "location": "discuz.ts",
         "module": () => import('@/routes/discuz/discuz.ts')
@@ -60967,139 +61855,6 @@ export default {
     "url": "www.eventernote.com",
     "lang": "ja"
   },
-  "everia": {
-    "routes": {
-      "/category/:category": {
-        "path": "/category/:category",
-        "categories": [
-          "picture"
-        ],
-        "example": "/everia/category/cosplay",
-        "parameters": {
-          "category": "Category of the image stream"
-        },
-        "features": {
-          "requireConfig": false,
-          "requirePuppeteer": false,
-          "antiCrawler": false,
-          "supportBT": false,
-          "supportPodcast": false,
-          "supportScihub": false,
-          "nsfw": true
-        },
-        "radar": [
-          {
-            "source": [
-              "everia.club/category/:category"
-            ],
-            "target": "/category/:category"
-          }
-        ],
-        "name": "Images with category",
-        "maintainers": [
-          "KTachibanaM",
-          "AiraNadih"
-        ],
-        "location": "category.ts",
-        "module": () => import('@/routes/everia/category.ts')
-      },
-      "/": {
-        "path": "/",
-        "categories": [
-          "picture"
-        ],
-        "example": "/everia",
-        "parameters": {},
-        "features": {
-          "requireConfig": false,
-          "requirePuppeteer": false,
-          "antiCrawler": false,
-          "supportBT": false,
-          "supportPodcast": false,
-          "supportScihub": false,
-          "nsfw": true
-        },
-        "radar": [
-          {
-            "source": [
-              "everia.club/"
-            ],
-            "target": ""
-          }
-        ],
-        "name": "Latest",
-        "maintainers": [
-          "KTachibanaM",
-          "AiraNadih"
-        ],
-        "location": "latest.ts",
-        "module": () => import('@/routes/everia/latest.ts')
-      },
-      "/search/:keyword": {
-        "path": "/search/:keyword",
-        "categories": [
-          "picture"
-        ],
-        "example": "/everia/search/日向坂46",
-        "parameters": {
-          "keyword": "Keyword"
-        },
-        "features": {
-          "requireConfig": false,
-          "requirePuppeteer": false,
-          "antiCrawler": false,
-          "supportBT": false,
-          "supportPodcast": false,
-          "supportScihub": false,
-          "nsfw": true
-        },
-        "name": "Search",
-        "maintainers": [
-          "KTachibanaM",
-          "AiraNadih"
-        ],
-        "location": "search.ts",
-        "module": () => import('@/routes/everia/search.ts')
-      },
-      "/tag/:tag": {
-        "path": "/tag/:tag",
-        "categories": [
-          "picture"
-        ],
-        "example": "/everia/tag/hinatazaka46-日向坂46",
-        "parameters": {
-          "tag": "Tag of the image stream"
-        },
-        "features": {
-          "requireConfig": false,
-          "requirePuppeteer": false,
-          "antiCrawler": false,
-          "supportBT": false,
-          "supportPodcast": false,
-          "supportScihub": false,
-          "nsfw": true
-        },
-        "radar": [
-          {
-            "source": [
-              "everia.club/tag/:tag"
-            ],
-            "target": "/tag/:tag"
-          }
-        ],
-        "name": "Images with tag",
-        "maintainers": [
-          "KTachibanaM",
-          "AiraNadih"
-        ],
-        "location": "tag.ts",
-        "module": () => import('@/routes/everia/tag.ts')
-      }
-    },
-    "apiRoutes": {},
-    "name": "EVERIA.CLUB",
-    "url": "everia.club"
-  },
   "expats": {
     "routes": {
       "/czech-news/:category?": {
@@ -62684,6 +63439,59 @@ export default {
     "url": "fosshub.com",
     "lang": "en"
   },
+  "fraenkelgallery": {
+    "routes": {
+      "/:type?": {
+        "path": "/:type?",
+        "categories": [
+          "picture"
+        ],
+        "view": 2,
+        "example": "/fraenkelgallery/exhibitions",
+        "parameters": {
+          "type": "`exhibitions` (default) or `posts` (the Conversations blog)"
+        },
+        "features": {
+          "requireConfig": false,
+          "requirePuppeteer": false,
+          "antiCrawler": false,
+          "supportBT": false,
+          "supportPodcast": false,
+          "supportScihub": false
+        },
+        "radar": [
+          {
+            "source": [
+              "fraenkelgallery.com/exhibitions",
+              "fraenkelgallery.com/"
+            ],
+            "target": "/exhibitions"
+          },
+          {
+            "source": [
+              "fraenkelgallery.com/conversations"
+            ],
+            "target": "/posts"
+          }
+        ],
+        "name": "Exhibitions & Conversations",
+        "maintainers": [
+          "IvanWng97"
+        ],
+        "description": "Exhibitions come with artist, year, type and status as categories and the full exhibition page including all images.",
+        "location": "index.tsx",
+        "module": () => import('@/routes/fraenkelgallery/index.tsx')
+      }
+    },
+    "apiRoutes": {},
+    "name": "Fraenkel Gallery",
+    "url": "fraenkelgallery.com",
+    "categories": [
+      "picture"
+    ],
+    "description": "Photography gallery in San Francisco: exhibitions and conversations.",
+    "lang": "en"
+  },
   "freecomputerbooks": {
     "routes": {
       "/:category?": {
@@ -63289,65 +64097,6 @@ export default {
     "name": "GameApps.hk 香港手机游戏网",
     "url": "gameapps.hk",
     "lang": "zh-HK"
-  },
-  "gamebase": {
-    "routes": {
-      "/news/:type?/:category?": {
-        "path": "/news/:type?/:category?",
-        "name": "新聞",
-        "url": "news.gamebase.com.tw",
-        "maintainers": [
-          "nczitzk"
-        ],
-        "example": "/gamebase/news",
-        "parameters": {
-          "type": "類型，見下表，預設為 newslist",
-          "category": "分類，預設為 `all`，即全部，可在對應分類頁 URL 中找到"
-        },
-        "description": "::: tip\n若訂閱 [手機遊戲新聞](https://news.gamebase.com.tw/news/newslist?type=mobile)，網址為 `https://news.gamebase.com.tw/news/newslist?type=mobile`，請截取 `https://news.gamebase.com.tw/news/` 到末尾的部分 `newslist` 作為 `type` 參數填入，`mobile` 作為 `category` 參數填入，此時目標路由為 [`/gamebase/news/newslist/mobile`](https://rsshub.app/gamebase/news/newslist/mobile)。\n:::\n\n| newslist | r18list |\n| -------- | ------- |",
-        "categories": [
-          "game"
-        ],
-        "features": {
-          "requireConfig": false,
-          "requirePuppeteer": false,
-          "antiCrawler": false,
-          "supportRadar": true,
-          "supportBT": false,
-          "supportPodcast": false,
-          "supportScihub": false
-        },
-        "radar": [
-          {
-            "source": [
-              "news.gamebase.com.tw/news",
-              "news.gamebase.com.tw/news/:type"
-            ]
-          }
-        ],
-        "view": 0,
-        "zh": {
-          "path": "/news/:type?/:category?",
-          "name": "新闻",
-          "url": "news.gamebase.com.tw",
-          "maintainers": [
-            "nczitzk"
-          ],
-          "example": "/gamebase/news",
-          "parameters": {
-            "type": "类型，见下表，默认为 newslist",
-            "category": "分类，默认为 `all`，即全部，可在对应分类页 URL 中找到"
-          },
-          "description": "::: tip\n若订阅 [手机游戏新闻](https://news.gamebase.com.tw/news/newslist?type=mobile)，网址为 `https://news.gamebase.com.tw/news/newslist?type=mobile`，请截取 `https://news.gamebase.com.tw/news/` 到末尾的部分 `newslist` 作为 `type` 参数填入，`mobile` 作为 `category` 参数填入，此时目标路由为 [`/gamebase/news/newslist/mobile`](https://rsshub.app/gamebase/news/newslist/mobile)。\n:::\n\n| newslist | r18list |\n| -------- | ------- |"
-        },
-        "location": "news.tsx",
-        "module": () => import('@/routes/gamebase/news.tsx')
-      }
-    },
-    "apiRoutes": {},
-    "name": "遊戲基地 Gamebase",
-    "url": "news.gamebase.com.tw",
-    "lang": "zh-TW"
   },
   "gamegene": {
     "routes": {
@@ -72188,6 +72937,92 @@ export default {
     ],
     "lang": "zh-CN"
   },
+  "i-tenpo": {
+    "routes": {
+      "/detail/:id": {
+        "path": "/detail/:id",
+        "name": "物件詳細",
+        "url": "www.i-tenpo.com",
+        "maintainers": [
+          "pseudoyu"
+        ],
+        "example": "/i-tenpo/detail/99523",
+        "parameters": {
+          "id": {
+            "description": "The numeric 物件 id, i.e. the `99523` in `https://www.i-tenpo.com/t99523`"
+          }
+        },
+        "description": "One listing on 居抜き店舗.com, for following a single property rather than a whole ward — a listing's 賃料，引渡状態 and availability all change over its life.\n\nIts one advantage over the ward routes is the address. The page's own 所在地 field stops at the 町 exactly as the list does (`東京都新宿区高田馬場 詳細はログイン後に表示`), but the document title carries the 丁目 — `新宿区高田馬場2丁目/高田馬場駅徒歩2分/…` — so `address_hint` reaches the 丁目 here and only here.\n\n`_extra` follows the shared listing shape. 敷金 and 礼金 are shown only to signed-in users, here as on the list page, so they stay `null`. The site publishes 更新日 but no 掲載日，so `listed_at` and `pubDate` are a last-modified date rather than a first-listed one — do not read them as a publication date.",
+        "categories": [
+          "other"
+        ],
+        "features": {
+          "requireConfig": false,
+          "requirePuppeteer": false,
+          "antiCrawler": false,
+          "supportRadar": true
+        },
+        "radar": [
+          {
+            "source": [
+              "www.i-tenpo.com/t:id"
+            ],
+            "target": "/detail/:id"
+          }
+        ],
+        "location": "detail.ts",
+        "module": () => import('@/routes/i-tenpo/detail.ts')
+      },
+      "/:pref/:city/:type?": {
+        "path": "/:pref/:city/:type?",
+        "name": "居抜き物件",
+        "url": "www.i-tenpo.com",
+        "maintainers": [
+          "pseudoyu"
+        ],
+        "example": "/i-tenpo/tokyo/shinjuku-city",
+        "parameters": {
+          "pref": {
+            "description": "都道府県 slug, e.g. `tokyo`, `kanagawa`"
+          },
+          "city": {
+            "description": "市区町村 slug as the site spells it — `shinjuku-city`, `minato-city`, `yokohamashinaka-city`"
+          },
+          "type": {
+            "description": "Optional 業態 slug, e.g. `bar`, `izakaya`, `cafe`, `restaurant`, `other-restaurants`; omit for every 業態"
+          }
+        },
+        "description": "Listings on 居抜き店舗.com for one 市区町村 (first page, 20 listings), optionally narrowed to one 業態 — `/i-tenpo/tokyo/shinjuku-city/bar` is 新宿区のバー.\n\nEach item's `_extra` follows the shared listing shape (賃料，坪，坪単価，階層，最寄駅，造作価格，前業態，引渡状態，…); unknown values are `null`. 敷金，礼金 and the coordinates are shown only to signed-in users and are therefore always `null`, the 丁目 appears only on the detail page so `address_hint` stops at the 町，and the cards carry no 登録日 so items have no `pubDate`.\n\n引渡状態 combines two things — 営業状況 (`閉店済` / `営業中` / `確認中` / `新築`) and 引渡形態 (`居抜き` / `スケルトン` / `現状渡し`). Only the 引渡形態 half maps to `condition`, so `現状渡し` yields `null` rather than being forced into 居抜き or スケルトン；the whole string stays in `raw.handover`, which is where the 閉店済 closure signal can be read. Likewise 造作価格 `造作なし` / `造作無償` become `0` because they really are zero, while `確認中` stays `null` because it is unknown.\n\nAn unknown 市区町村 slug is answered by the site with the whole prefecture at HTTP 200 rather than a 404, so the route checks the area the page actually resolved and fails instead of silently serving prefecture-wide listings as if they were one ward's.",
+        "categories": [
+          "other"
+        ],
+        "features": {
+          "requireConfig": false,
+          "requirePuppeteer": false,
+          "antiCrawler": false,
+          "supportRadar": true
+        },
+        "radar": [
+          {
+            "source": [
+              "www.i-tenpo.com/:pref/:city/:type"
+            ],
+            "target": "/:pref/:city/:type"
+          }
+        ],
+        "location": "property.ts",
+        "module": () => import('@/routes/i-tenpo/property.ts')
+      }
+    },
+    "apiRoutes": {},
+    "name": "Inukitenpo",
+    "url": "www.i-tenpo.com",
+    "description": "居抜き店舗.com — 飲食店向け居抜き物件・貸店舗情報サイト",
+    "lang": "ja",
+    "ja": {
+      "name": "居抜き店舗.com"
+    }
+  },
   "ianspriggs": {
     "routes": {
       "/:category?": {
@@ -72316,6 +73151,61 @@ export default {
   },
   "icity": {
     "routes": {
+      "/imuseum/:city/:type?": {
+        "path": "/imuseum/:city/:type?",
+        "categories": [
+          "travel"
+        ],
+        "example": "/icity/imuseum/guangzhou/latest",
+        "parameters": {
+          "city": "城市，取自站点 URL 中的城市路径，如 guangzhou、shanghai、beijing",
+          "type": {
+            "description": "展览列表类型",
+            "default": "latest",
+            "options": [
+              {
+                "value": "all",
+                "label": "全部"
+              },
+              {
+                "value": "latest",
+                "label": "最新"
+              },
+              {
+                "value": "hot",
+                "label": "热门"
+              },
+              {
+                "value": "end_soon",
+                "label": "即将结束"
+              },
+              {
+                "value": "coming",
+                "label": "即将开始"
+              },
+              {
+                "value": "outdated",
+                "label": "已结束"
+              }
+            ]
+          }
+        },
+        "name": "iMuseum 城市展览",
+        "maintainers": [
+          "chouj"
+        ],
+        "radar": [
+          {
+            "source": [
+              "art.icity.ly/:city"
+            ],
+            "target": "/imuseum/:city"
+          }
+        ],
+        "description": "iMuseum（每日环球展览）各城市正在进行与即将开始的展览。城市与类型均取自站点 URL 路径，例如 `guangzhou/latest`。",
+        "location": "imuseum.ts",
+        "module": () => import('@/routes/icity/imuseum.ts')
+      },
       "/:id": {
         "path": "/:id",
         "categories": [
@@ -73734,6 +74624,160 @@ export default {
     "url": "inoreader.com",
     "lang": "en"
   },
+  "inshokuten": {
+    "routes": {
+      "/bukken/:area?/:region?": {
+        "path": "/bukken/:area?/:region?",
+        "name": "新着物件",
+        "url": "www.inshokuten.com",
+        "maintainers": [
+          "pseudoyu"
+        ],
+        "example": "/inshokuten/bukken/23ward",
+        "parameters": {
+          "area": {
+            "description": "Region or 首都圏 sub-area",
+            "default": "kanto",
+            "options": [
+              {
+                "value": "kanto",
+                "label": "首都圏"
+              },
+              {
+                "value": "23ward",
+                "label": "東京23区"
+              },
+              {
+                "value": "23ward_out",
+                "label": "東京都下"
+              },
+              {
+                "value": "yokohama_kawasaki",
+                "label": "神奈川"
+              },
+              {
+                "value": "chiba",
+                "label": "千葉"
+              },
+              {
+                "value": "saitama",
+                "label": "埼玉"
+              },
+              {
+                "value": "kansai",
+                "label": "関西"
+              },
+              {
+                "value": "tokai",
+                "label": "東海"
+              },
+              {
+                "value": "kyushu",
+                "label": "九州"
+              }
+            ]
+          },
+          "region": {
+            "description": "Optional 区市, as 飲食店.COM's own numeric id — **not** a JIS code (新宿区 `7`, 港区 `4`, 横浜市中区 `63`). Only valid for the `local-*` sub-areas (`23ward`, `23ward_out`, `yokohama_kawasaki`, `chiba`, `saitama`); omit for the whole area."
+          }
+        },
+        "description": "New restaurant-property listings on 飲食店.COM sorted by 登録日 (first page, 20 listings) — for a whole area, or for one 区市 when `region` is given. Each item's `_extra` carries the structured listing fields (賃料，坪，坪単価，階，最寄駅，造作譲渡料，現況，前業態，出店可能業態，登録日，…); unknown values are `null`. 保証金 and 礼金 are members-only on the site and therefore always `null`.\n\n`region` is 飲食店.COM's own numeric 区市 id, **not** a JIS code, and applies only to the `local-*` sub-areas — `/inshokuten/bukken/23ward/7` is 新宿区 and `/inshokuten/bukken/yokohama_kawasaki/63` is 横浜市中区。東京 23 区 runs 1–23 and 横浜・川崎 runs 51–72; the site answers an unknown id with a 404, so a wrong value fails loudly instead of silently returning the parent area.",
+        "categories": [
+          "other"
+        ],
+        "features": {
+          "requireConfig": false,
+          "requirePuppeteer": false,
+          "antiCrawler": false,
+          "supportRadar": true
+        },
+        "radar": [
+          {
+            "source": [
+              "www.inshokuten.com/bukken/:region/bukkens/list",
+              "www.inshokuten.com/bukken/:region/bukkens/list/local-:area"
+            ]
+          }
+        ],
+        "location": "bukken.ts",
+        "module": () => import('@/routes/inshokuten/bukken.ts')
+      },
+      "/rent-benchmark/:area?/:line?": {
+        "path": "/rent-benchmark/:area?/:line?",
+        "name": "賃料相場",
+        "url": "www.inshokuten.com",
+        "maintainers": [
+          "pseudoyu"
+        ],
+        "example": "/inshokuten/rent-benchmark/23ward",
+        "parameters": {
+          "area": {
+            "description": "首都圏 sub-area",
+            "default": "23ward",
+            "options": [
+              {
+                "value": "23ward",
+                "label": "東京23区"
+              },
+              {
+                "value": "23ward_out",
+                "label": "東京都下"
+              },
+              {
+                "value": "chiba",
+                "label": "千葉"
+              },
+              {
+                "value": "saitama",
+                "label": "埼玉"
+              },
+              {
+                "value": "yokohama_kawasaki",
+                "label": "神奈川"
+              }
+            ]
+          },
+          "line": {
+            "description": "Line id from the area page (`/bukken/kanto/market/rent/line/{area}`, e.g. `2` = JR山手線 in 東京23区); when given, one item per station on that line instead of one per 市区町村"
+          }
+        },
+        "description": "Restaurant-property rent benchmarks (坪単価，消費税込み募集金額，直近 1 年間) published by 飲食店.COM. Without `line` the feed has one item per 市区町村 of the area; with `line` one item per station on that line. Each item's `_extra` carries `rent_per_tsubo_avg_jpy` / `_min_jpy` / `_max_jpy` (円 / 坪 / 月), `sample_count` (sum of the 賃料分布図 buckets), `period` and the raw site text; the site publishes no 中央値 and no 更新日，so `rent_per_tsubo_median_jpy` is always `null` and items carry no `pubDate`. Detail pages are cached for one day.",
+        "categories": [
+          "other"
+        ],
+        "features": {
+          "requireConfig": false,
+          "requirePuppeteer": false,
+          "antiCrawler": false,
+          "supportRadar": true
+        },
+        "radar": [
+          {
+            "source": [
+              "www.inshokuten.com/bukken/kanto/market/rent/line/:area"
+            ],
+            "target": "/rent-benchmark/:area"
+          },
+          {
+            "source": [
+              "www.inshokuten.com/bukken/kanto/market/rent/station/:line"
+            ],
+            "target": "/rent-benchmark/23ward/:line"
+          }
+        ],
+        "location": "rent-benchmark.ts",
+        "module": () => import('@/routes/inshokuten/rent-benchmark.ts')
+      }
+    },
+    "apiRoutes": {},
+    "name": "Inshokuten.com",
+    "url": "www.inshokuten.com",
+    "description": "飲食店.COM — 飲食店向け居抜き・貸店舗物件情報サイト",
+    "lang": "ja",
+    "ja": {
+      "name": "飲食店.COM"
+    }
+  },
   "instructables": {
     "routes": {
       "/projects/:category?": {
@@ -73775,6 +74819,71 @@ export default {
     "name": "Instructables",
     "url": "instructables.com",
     "lang": "en"
+  },
+  "inuki-ichiba": {
+    "routes": {
+      "/rent/:pref?": {
+        "path": "/rent/:pref?",
+        "name": "新着物件",
+        "url": "inuki-ichiba.jp",
+        "maintainers": [
+          "pseudoyu"
+        ],
+        "example": "/inuki-ichiba/rent/tokyo",
+        "parameters": {
+          "pref": {
+            "description": "都道府県 slug or JIS X 0401 code; omit for the site-wide 新着物件 page (一都三県 mixed)",
+            "options": [
+              {
+                "value": "tokyo",
+                "label": "東京都 (13)"
+              },
+              {
+                "value": "kanagawa",
+                "label": "神奈川県 (14)"
+              },
+              {
+                "value": "saitama",
+                "label": "埼玉県 (11)"
+              },
+              {
+                "value": "chiba",
+                "label": "千葉県 (12)"
+              }
+            ]
+          }
+        },
+        "description": "New listings on 居抜き市場，20 per page (first page only). With a prefecture the search results are sorted by 新着順；without one the site's 新着物件 page is used. Each item's `_extra` carries the structured listing fields (賃料，坪，階，最寄駅，敷金・保証金，造作価格，物件タイプ，現業態，飲食条件，…) parsed from the list and detail pages; unknown values are `null`. The site does not publish listing dates, so items have no `pubDate`.\n\n| Query   | Description                                                                  | Default |\n| ------- | ---------------------------------------------------------------------------- | ------- |\n| `limit` | Number of listings to process (detail pages are fetched per listing), max 20 | 20      |",
+        "categories": [
+          "other"
+        ],
+        "features": {
+          "requireConfig": false,
+          "requirePuppeteer": false,
+          "antiCrawler": false,
+          "supportRadar": true
+        },
+        "radar": [
+          {
+            "source": [
+              "inuki-ichiba.jp/sp_rent/1",
+              "inuki-ichiba.jp/"
+            ],
+            "target": "/rent"
+          }
+        ],
+        "location": "rent.ts",
+        "module": () => import('@/routes/inuki-ichiba/rent.ts')
+      }
+    },
+    "apiRoutes": {},
+    "name": "Inuki Ichiba",
+    "url": "inuki-ichiba.jp",
+    "description": "居抜き市場 — 一都三県の居抜き店舗・貸店舗物件情報サイト",
+    "lang": "ja",
+    "ja": {
+      "name": "居抜き市場"
+    }
   },
   "investor": {
     "routes": {
@@ -74423,6 +75532,88 @@ export default {
     "name": "爱 Q 生活网",
     "url": "iqnew.com",
     "lang": "zh-CN"
+  },
+  "iracing": {
+    "routes": {
+      "/news": {
+        "path": "/news",
+        "categories": [
+          "game"
+        ],
+        "example": "/iracing/news",
+        "features": {
+          "requireConfig": false,
+          "requirePuppeteer": false,
+          "antiCrawler": false,
+          "supportBT": false,
+          "supportPodcast": false,
+          "supportScihub": false
+        },
+        "radar": [
+          {
+            "source": [
+              "www.iracing.com/category/news/sim-racing-news"
+            ],
+            "target": "/news"
+          }
+        ],
+        "name": "News",
+        "maintainers": [
+          "canonnizq"
+        ],
+        "location": "news.ts",
+        "module": () => import('@/routes/iracing/news.ts')
+      }
+    },
+    "apiRoutes": {},
+    "name": "iRacing",
+    "url": "iracing.com",
+    "description": ""
+  },
+  "iri-search": {
+    "routes": {
+      "/estate/:area?": {
+        "path": "/estate/:area?",
+        "name": "新着物件",
+        "url": "www.iri-search.net",
+        "maintainers": [
+          "pseudoyu"
+        ],
+        "example": "/iri-search/estate/tokyo",
+        "parameters": {
+          "area": "Region slug (shutoken, hokkaido, tohoku, kitakanto, hokuriku, koshinetsu, tokai, kinki, chugoku, shikoku, kyushu, okinawa) or a 首都圏 prefecture (tokyo, kanagawa, saitama, chiba or its JIS code); omit for nationwide"
+        },
+        "description": "New listings on 居抜き物件検索 iri-search sorted by 新着順 (first page, 30 listings). Each item's `_extra` carries the structured listing fields (賃料，坪，坪単価，階，最寄駅，保証金・敷金，居抜き譲渡代，以前の業態，業種可否，掲載日，…) parsed from the list and detail pages; unknown values are `null`.\n\n| Query   | Description                                                                  | Default |\n| ------- | ---------------------------------------------------------------------------- | ------- |\n| `limit` | Number of listings to process (detail pages are fetched per listing), max 30 | 30      |",
+        "categories": [
+          "other"
+        ],
+        "features": {
+          "requireConfig": false,
+          "requirePuppeteer": false,
+          "antiCrawler": false,
+          "supportRadar": true
+        },
+        "radar": [
+          {
+            "source": [
+              "www.iri-search.net/estate_search",
+              "www.iri-search.net/"
+            ],
+            "target": "/estate"
+          }
+        ],
+        "location": "estate.ts",
+        "module": () => import('@/routes/iri-search/estate.ts')
+      }
+    },
+    "apiRoutes": {},
+    "name": "iri-search",
+    "url": "www.iri-search.net",
+    "description": "居抜き物件検索 iri-search — 全国の貸店舗・居抜き物件情報サイト",
+    "lang": "ja",
+    "ja": {
+      "name": "居抜き物件検索 iri-search"
+    }
   },
   "itc": {
     "routes": {
@@ -75341,6 +76532,48 @@ export default {
     "zh": {
       "name": "日本贵金属市场协会",
       "description": ""
+    }
+  },
+  "jfnet": {
+    "routes": {
+      "/industry-report": {
+        "path": "/industry-report",
+        "name": "外食産業市場動向調査（月次）",
+        "url": "www.jfnet.or.jp",
+        "maintainers": [
+          "pseudoyu"
+        ],
+        "example": "/jfnet/industry-report",
+        "parameters": {},
+        "description": "Monthly releases of the 外食産業市場動向調査 from [業界データ](https://www.jfnet.or.jp/industry_report/). One item per survey month linking the PDF and Excel files; `_extra` carries `month` (YYYY-MM), `pdf`, `xls` and `released_at` (the file's upload date from the site's WordPress media API). The segment figures (売上高・客数・客単価 前年同月比) are only published inside the files and are not extracted: the site's 利用規約 reserves reproduction of its 資料 to prior permission.",
+        "categories": [
+          "finance"
+        ],
+        "features": {
+          "requireConfig": false,
+          "requirePuppeteer": false,
+          "antiCrawler": false,
+          "supportRadar": true
+        },
+        "radar": [
+          {
+            "source": [
+              "www.jfnet.or.jp/industry_report"
+            ],
+            "target": "/industry-report"
+          }
+        ],
+        "location": "industry-report.ts",
+        "module": () => import('@/routes/jfnet/industry-report.ts')
+      }
+    },
+    "apiRoutes": {},
+    "name": "Japan Foodservice Association",
+    "url": "www.jfnet.or.jp",
+    "description": "一般社団法人日本フードサービス協会",
+    "lang": "ja",
+    "ja": {
+      "name": "日本フードサービス協会"
     }
   },
   "jgsu": {
@@ -76593,6 +77826,53 @@ export default {
     "url": "www.jpxgmn.com",
     "lang": "zh-CN"
   },
+  "jreast": {
+    "routes": {
+      "/ridership/:year?": {
+        "path": "/ridership/:year?",
+        "name": "各駅の乗車人員",
+        "url": "www.jreast.co.jp",
+        "maintainers": [
+          "pseudoyu"
+        ],
+        "example": "/jreast/ridership",
+        "parameters": {
+          "year": {
+            "description": "Fiscal year (`2019` … latest); omit for the latest year"
+          }
+        },
+        "description": "Annual 各駅の乗車人員 (one-day average of boarding passengers) for every JR東日本 station, from [各駅の乗車人員](https://www.jreast.co.jp/company/data/passenger/) (ベスト100 plus the 101位以下 pages). One item per station and fiscal year; `_extra` follows the shared ridership shape with `measure: 'boarding'` — JR東日本 counts 乗車 only, so the figures are not comparable with the 乗降 figures of other operators. `yoy_pct` is normalised to a % change (the site prints a ratio such as 102.5 from FY2023 on). The operator does not publish a release date, so items have no `pubDate`.\n\n::: warning\nThe site's [ご利用にあたって](https://www.jreast.co.jp/site/rules.html) states: 「当サイト上に掲載されている全ての写真、社名ロゴ、画像、文章等のデータ等の利用については、複製・転用・転載・電磁的加工・送信・頒布・二次的使用・その他これらに類する全ての行為も含め、一切お断りいたします。」 Use the figures accordingly.\n:::",
+        "categories": [
+          "other"
+        ],
+        "features": {
+          "requireConfig": false,
+          "requirePuppeteer": false,
+          "antiCrawler": true,
+          "supportRadar": true
+        },
+        "radar": [
+          {
+            "source": [
+              "www.jreast.co.jp/company/data/passenger/",
+              "www.jreast.co.jp/passenger/"
+            ],
+            "target": "/ridership"
+          }
+        ],
+        "location": "ridership.ts",
+        "module": () => import('@/routes/jreast/ridership.ts')
+      }
+    },
+    "apiRoutes": {},
+    "name": "JR East",
+    "url": "www.jreast.co.jp",
+    "description": "東日本旅客鉄道",
+    "lang": "ja",
+    "ja": {
+      "name": "JR東日本"
+    }
+  },
   "jrj": {
     "routes": {
       "/:channelNum": {
@@ -77344,6 +78624,48 @@ export default {
     "name": "KeePass",
     "url": "keepass.info",
     "lang": "en"
+  },
+  "keio": {
+    "routes": {
+      "/ridership": {
+        "path": "/ridership",
+        "name": "駅別 一日平均乗降人員",
+        "url": "www.keio.co.jp",
+        "maintainers": [
+          "pseudoyu"
+        ],
+        "example": "/keio/ridership",
+        "parameters": {},
+        "description": "Annual 駅別 一日平均乗降人員 for every Keio station (京王線 incl. 相模原線・高尾線 etc., and 井の頭線), from [駅別 一日平均乗降人員](https://www.keio.co.jp/company/corporate/corporate_manual/number-of-passengers.html). The page lists the latest fiscal year and the one before it side by side, so there is one item per station and year (two per station); there is no year parameter. `_extra` carries `operator`, `station`, `line`, `fiscal_year`, `daily_average` (人/日) and both cells in `raw`. `rank` is `null` (no ranking is printed); `yoy_pct` is computed from the two year columns for the latest year (rounded to 0.1) and `null` for the earlier one. 明大前's （乗換） transfer count is kept in `raw.note`; the 全線計 row is not a station and is skipped. The operator does not publish a release date, so items have no `pubDate`.",
+        "categories": [
+          "other"
+        ],
+        "features": {
+          "requireConfig": false,
+          "requirePuppeteer": false,
+          "antiCrawler": false,
+          "supportRadar": true
+        },
+        "radar": [
+          {
+            "source": [
+              "www.keio.co.jp/company/corporate/corporate_manual/number-of-passengers.html"
+            ],
+            "target": "/ridership"
+          }
+        ],
+        "location": "ridership.ts",
+        "module": () => import('@/routes/keio/ridership.ts')
+      }
+    },
+    "apiRoutes": {},
+    "name": "Keio Corporation",
+    "url": "www.keio.co.jp",
+    "description": "京王電鉄株式会社",
+    "lang": "ja",
+    "ja": {
+      "name": "京王電鉄"
+    }
   },
   "kelownacapnews": {
     "routes": {
@@ -79309,6 +80631,130 @@ export default {
     ],
     "lang": "en"
   },
+  "lg": {
+    "routes": {
+      "/tokyo/rail-ridership/:table?": {
+        "path": "/tokyo/rail-ridership/:table?",
+        "name": "東京都統計年鑑 駅別乗降車人員",
+        "url": "catalog.data.metro.tokyo.lg.jp",
+        "maintainers": [
+          "pseudoyu"
+        ],
+        "example": "/lg/tokyo/rail-ridership",
+        "parameters": {
+          "table": {
+            "description": "Which yearbook table to read; defaults to 私鉄",
+            "options": [
+              {
+                "value": "private",
+                "label": "私鉄の駅別乗降車人員"
+              },
+              {
+                "value": "subway",
+                "label": "地下鉄の駅別乗降車人員"
+              }
+            ]
+          }
+        },
+        "description": "Per-station yearly ridership for Tokyo's private railways and subways, from the [東京都統計年鑑 運輸・観光](https://catalog.data.metro.tokyo.lg.jp/dataset/t000003d2000001150) (CC BY 4.0). One item per station and fiscal year.\n\nThis is the only permissively licensed source covering ゆりかもめ, りんかい線 (東京臨海高速鉄道) and つくばエクスプレス (首都圏新都市鉄道) — their own sites either publish no per-station table or forbid reuse.\n\nRead the figures carefully:\n\n- They are **one-year totals in 千人**, not the 一日平均 in 人/日 that operators publish. `_extra` carries `annual_total` with `unit: '千人/年'` and leaves `daily_average` null; the route never converts between the two.\n- The table gives 乗車人員 and 降車人員 in separate columns. The item carries 乗車 (`measure: 'boarding'`) and leaves 降車 verbatim in `raw`, rather than summing them.\n- Only stations **within 東京都** are listed, so a line is truncated at the prefecture border. The publisher's `マーク` column (kept in `raw`) marks 「◎ 同一会社内の乗換え駅」 and 「※ 区部にある駅 (線)」.\n- Figures 「同一会社内の乗り継ぎは除く」 (exclude transfers within the same company).\n\nThe table number changes between editions (私鉄 was 4-12 in 令和6年 but 4-13 in 令和5年), so the route resolves the current edition and table through the catalog API by name rather than a fixed URL.\n\nAttribution required by the licence: 出典：東京都統計年鑑（東京都総務局統計部）.",
+        "categories": [
+          "other"
+        ],
+        "features": {
+          "requireConfig": false,
+          "requirePuppeteer": false,
+          "antiCrawler": false,
+          "supportRadar": false
+        },
+        "location": "tokyo/rail-ridership.ts",
+        "module": () => import('@/routes/lg/tokyo/rail-ridership.ts')
+      },
+      "/osaka/food-permit": {
+        "path": "/osaka/food-permit",
+        "name": "大阪市 食品営業許可 新規",
+        "url": "www.city.osaka.lg.jp",
+        "maintainers": [
+          "pseudoyu"
+        ],
+        "example": "/lg/osaka/food-permit",
+        "description": "Newest food business permits (食品営業許可) in 大阪市，from the CC BY 4.0 [食品営業許可施設一覧 CSV](https://www.city.osaka.lg.jp/kenko/page/0000575579.html) — a quarterly snapshot of all valid permits with 緯度経度.\n\nThe dataset has no permit date, only 許可満了日，so items have no `pubDate`; they are ordered by 指令番号 (`大 保食第<年度>-<連番>号`), newest first, and only 申請区分 = 新規 rows are included. `_extra` holds `source`, `ward`, `permit_no`, `name`, `address`, `permit_date` (always `null`), `expires_at` (許可満了日), `business_type`, `lat`, `lon` and the publisher's original columns in `raw`. 大阪市 publishes no 町字，初回許可日 or 廃業日，so `town`, `first_permit_date` and `closed_date` are always `null` here.\n\n| Query   | Description                | Default |\n| ------- | -------------------------- | ------- |\n| `limit` | Number of permits, max 500 | 100     |",
+        "categories": [
+          "government"
+        ],
+        "features": {
+          "requireConfig": false,
+          "requirePuppeteer": false,
+          "antiCrawler": false,
+          "supportRadar": false
+        },
+        "location": "osaka/food-permit.ts",
+        "module": () => import('@/routes/lg/osaka/food-permit.ts')
+      },
+      "/tokyo/food-permit/:ward?": {
+        "path": "/tokyo/food-permit/:ward?",
+        "name": "東京都 飲食店営業許可 新規",
+        "url": "catalog.data.metro.tokyo.lg.jp",
+        "maintainers": [
+          "pseudoyu"
+        ],
+        "example": "/lg/tokyo/food-permit",
+        "parameters": {
+          "ward": {
+            "description": "Ward; omit for all sources",
+            "options": [
+              {
+                "value": "shibuya",
+                "label": "渋谷区"
+              },
+              {
+                "value": "minato",
+                "label": "港区"
+              },
+              {
+                "value": "taito",
+                "label": "台東区"
+              },
+              {
+                "value": "shinagawa",
+                "label": "品川区"
+              },
+              {
+                "value": "setagaya",
+                "label": "世田谷区"
+              },
+              {
+                "value": "meguro",
+                "label": "目黒区"
+              }
+            ]
+          }
+        },
+        "description": "Newly granted food business permits (飲食店営業許可 etc.) in Tokyo wards, from each ward's CC BY open data:\n\n- 渋谷区: [食品営業許可施設一覧 (ArcGIS FeatureServer)](https://city-shibuya-data.opendata.arcgis.com/items/e68f41ebfa5f4ea490ca9af701d44e02) — current and previous month\n- 港区: [食品営業許可一覧 (CSV)](https://catalog.data.metro.tokyo.lg.jp/dataset/t131032d0000000244) — monthly snapshot of valid permits, newest first\n- 台東区: [食品衛生営業施設一覧](https://www.city.taito.lg.jp/kenkohukusi/kenkokikikanrieisei/food/syokuhin-sisetu/index.html) — the two newest monthly 新規許可 CSVs (updated on the 10th)\n- 品川区: [食品衛生許可施設一覧](https://www.city.shinagawa.tokyo.jp/PC/kenkou/kenkou-eisei/kenkou-eisei-syokuhin/opendate.html) — the two newest monthly CSVs (updated on the 15th); individuals' names and addresses are masked by the publisher and come through as `null`\n- 世田谷区: [食品関係施設情報の公開について](https://www.city.setagaya.lg.jp/02245/online_tetsuzuki/3246.html) — the two newest 例月新規許可施設一覧 CSVs (updated on the 15th)\n- 目黒区: [飲食店等 (BODIK CKAN)](https://data.bodik.jp/dataset/131105_food_business) — the two newest 飲食店 新規 monthly CSVs (updated by the 10th)\n\nItems are sorted by permit date (`pubDate`). `_extra` holds `source`, `ward`, `permit_no`, `name`, `address`, `town` (町字), `permit_date`, `first_permit_date`, `expires_at` (許可満了日), `closed_date` (廃業日 — non-null means the business has already closed), `business_type`, `lat` / `lon` and the publisher's original columns in `raw`. Every field a publisher omits is `null`, never `0` or an empty string. Only 許可 rows are included (届出 rows are skipped).\n\n| Query   | Description                           | Default |\n| ------- | ------------------------------------- | ------- |\n| `limit` | Number of permits per source, max 500 | 100     |",
+        "categories": [
+          "government"
+        ],
+        "features": {
+          "requireConfig": false,
+          "requirePuppeteer": false,
+          "antiCrawler": false,
+          "supportRadar": false
+        },
+        "location": "tokyo/food-permit.ts",
+        "module": () => import('@/routes/lg/tokyo/food-permit.ts')
+      }
+    },
+    "apiRoutes": {},
+    "name": "Japan Local Government",
+    "url": "lg.jp",
+    "categories": [
+      "government"
+    ],
+    "description": "Local governments of Japan (`lg.jp`)",
+    "lang": "ja",
+    "ja": {
+      "name": "地方公共団体"
+    }
+  },
   "lhratings": {
     "routes": {
       "/research/:type?": {
@@ -81065,6 +82511,46 @@ export default {
     "name": "Magnum Photos",
     "url": "magnumphotos.com",
     "lang": "en"
+  },
+  "maldita": {
+    "routes": {
+      "/updates/:category?": {
+        "path": "/updates/:category?",
+        "categories": [
+          "new-media"
+        ],
+        "example": "/maldita/updates/desinfo",
+        "parameters": {
+          "category": "Category to fetch"
+        },
+        "features": {
+          "requireConfig": false,
+          "requirePuppeteer": false,
+          "antiCrawler": false,
+          "supportBT": false,
+          "supportPodcast": false,
+          "supportScihub": false
+        },
+        "radar": [
+          {
+            "source": [
+              "maldita.es/:category/"
+            ],
+            "target": "/updates/:category"
+          }
+        ],
+        "name": "Latest Updates",
+        "maintainers": [
+          "canonnizq"
+        ],
+        "description": "Categories: all | desinfo | prebunking | investigaciones | control-del-poder | policy",
+        "location": "updates.ts",
+        "module": () => import('@/routes/maldita/updates.ts')
+      }
+    },
+    "apiRoutes": {},
+    "name": "Maldita.es",
+    "url": "maldita.es"
   },
   "manhuagui": {
     "routes": {
@@ -84183,6 +85669,27 @@ export default {
     "name": "厚生労働省",
     "url": "www.mhlw.go.jp"
   },
+  "mikiki": {
+    "routes": {
+      "/": {
+        "path": "/",
+        "categories": [
+          "new-media"
+        ],
+        "example": "/mikiki",
+        "name": "最新記事",
+        "maintainers": [
+          "ashi-koki"
+        ],
+        "location": "index.ts",
+        "module": () => import('@/routes/mikiki/index.ts')
+      }
+    },
+    "apiRoutes": {},
+    "name": "Mikiki",
+    "url": "mikiki.tokyo.jp",
+    "lang": "ja"
+  },
   "mindmeister": {
     "routes": {
       "/:category?/:language?": {
@@ -84268,6 +85775,37 @@ export default {
     "name": "明報",
     "url": "mingpao.com",
     "lang": "zh-TW"
+  },
+  "minhangmuseum": {
+    "routes": {
+      "/interim": {
+        "path": "/interim",
+        "categories": [
+          "travel"
+        ],
+        "example": "/minhangmuseum/interim",
+        "name": "临时展览",
+        "maintainers": [
+          "magazian"
+        ],
+        "radar": [
+          {
+            "source": [
+              "minhangmuseum.shmh.gov.cn/weixin/interim/list.htm"
+            ],
+            "target": "/interim"
+          }
+        ],
+        "location": "interim.tsx",
+        "module": () => import('@/routes/minhangmuseum/interim.tsx')
+      }
+    },
+    "apiRoutes": {},
+    "name": "Minhang Museum",
+    "url": "minhangmuseum.shmh.gov.cn",
+    "zh": {
+      "name": "上海市闵行区博物馆"
+    }
   },
   "missav": {
     "routes": {
@@ -85723,6 +87261,37 @@ export default {
       "new-media"
     ],
     "lang": "en"
+  },
+  "namoc": {
+    "routes": {
+      "/zhanlan": {
+        "path": "/zhanlan",
+        "categories": [
+          "travel"
+        ],
+        "example": "/namoc/zhanlan",
+        "name": "Exhibitions",
+        "maintainers": [
+          "magazian"
+        ],
+        "radar": [
+          {
+            "source": [
+              "www.namoc.cn/namoc/zhanlan/zl_list.shtml"
+            ],
+            "target": "/zhanlan"
+          }
+        ],
+        "location": "zhanlan.tsx",
+        "module": () => import('@/routes/namoc/zhanlan.tsx')
+      }
+    },
+    "apiRoutes": {},
+    "name": "National Art Museum of China",
+    "url": "www.namoc.cn",
+    "zh": {
+      "name": "中国美术馆"
+    }
   },
   "nankai": {
     "routes": {
@@ -92743,6 +94312,48 @@ export default {
     "url": "odaily.news",
     "lang": "zh-CN"
   },
+  "odakyu": {
+    "routes": {
+      "/ridership": {
+        "path": "/ridership",
+        "name": "駅別乗降人員",
+        "url": "www.odakyu.jp",
+        "maintainers": [
+          "pseudoyu"
+        ],
+        "example": "/odakyu/ridership",
+        "parameters": {},
+        "description": "Annual 1日平均駅別乗降人員 for every Odakyu station (小田原線 / 江ノ島線 / 多摩線), from [鉄道部門：駅別乗降人員・輸送人員ほか](https://www.odakyu.jp/company/railroad/users/). The operator publishes only the current fiscal year on this page, so there is no year parameter. One item per station; `_extra` carries `operator`, `station`, `line`, `fiscal_year`, `daily_average` (人/日), `rank` (順位 across all lines), `yoy_pct` (増減率) and the page's cell text in `raw`. The operator does not publish a release date, so items have no `pubDate`.",
+        "categories": [
+          "other"
+        ],
+        "features": {
+          "requireConfig": false,
+          "requirePuppeteer": false,
+          "antiCrawler": false,
+          "supportRadar": true
+        },
+        "radar": [
+          {
+            "source": [
+              "www.odakyu.jp/company/railroad/users/"
+            ],
+            "target": "/ridership"
+          }
+        ],
+        "location": "ridership.ts",
+        "module": () => import('@/routes/odakyu/ridership.ts')
+      }
+    },
+    "apiRoutes": {},
+    "name": "Odakyu Electric Railway",
+    "url": "www.odakyu.jp",
+    "description": "小田急電鉄株式会社",
+    "lang": "ja",
+    "ja": {
+      "name": "小田急電鉄"
+    }
+  },
   "oesw": {
     "routes": {
       "/:path{.+}?": {
@@ -92851,6 +94462,27 @@ export default {
     "name": "隆众资讯",
     "url": "oilchem.net",
     "lang": "zh-CN"
+  },
+  "okayafrica": {
+    "routes": {
+      "/music/latest": {
+        "path": "/music/latest",
+        "categories": [
+          "new-media"
+        ],
+        "example": "/okayafrica/music/latest",
+        "name": "Music Latest",
+        "maintainers": [
+          "ashi-koki"
+        ],
+        "location": "music.ts",
+        "module": () => import('@/routes/okayafrica/music.ts')
+      }
+    },
+    "apiRoutes": {},
+    "name": "OkayAfrica",
+    "url": "www.okayafrica.com",
+    "lang": "en"
   },
   "okx": {
     "routes": {
@@ -108249,6 +109881,51 @@ export default {
     "url": "www.solidot.org",
     "lang": "zh-CN"
   },
+  "sonomama": {
+    "routes": {
+      "/property/:pref?": {
+        "path": "/property/:pref?",
+        "name": "新着物件",
+        "url": "www.sonomama.net",
+        "maintainers": [
+          "pseudoyu"
+        ],
+        "example": "/sonomama/property/tokyo",
+        "parameters": {
+          "pref": "Prefecture slug (tokyo, kanagawa, saitama, chiba, osaka, kyoto, hyogo, aichi, fukuoka) or JIS X 0401 code; omit for nationwide"
+        },
+        "description": "New listings on 店舗そのままオークション，newest first (first page, 20 listings). Each item's `_extra` carries the structured listing fields (賃料，坪，階，最寄駅，敷金・保証金，造作価格，業態，業種制限，…) parsed from the list and detail pages; unknown values are `null`. The site does not publish listing dates, so items have no `pubDate`.\n\n| Query   | Description                                                                  | Default |\n| ------- | ---------------------------------------------------------------------------- | ------- |\n| `limit` | Number of listings to process (detail pages are fetched per listing), max 20 | 20      |",
+        "categories": [
+          "other"
+        ],
+        "features": {
+          "requireConfig": false,
+          "requirePuppeteer": false,
+          "antiCrawler": false,
+          "supportRadar": true
+        },
+        "radar": [
+          {
+            "source": [
+              "www.sonomama.net/app/",
+              "www.sonomama.net/"
+            ],
+            "target": "/property"
+          }
+        ],
+        "location": "property.ts",
+        "module": () => import('@/routes/sonomama/property.ts')
+      }
+    },
+    "apiRoutes": {},
+    "name": "Sonomama",
+    "url": "www.sonomama.net",
+    "description": "店舗そのままオークション — 居抜き店舗物件情報サイト",
+    "lang": "ja",
+    "ja": {
+      "name": "店舗そのままオークション"
+    }
+  },
   "sony": {
     "routes": {
       "/downloads/:productType/:productId": {
@@ -108427,6 +110104,60 @@ export default {
     "name": "SourceForge",
     "url": "www.sourceforge.net",
     "lang": "en"
+  },
+  "south-plus": {
+    "routes": {
+      "/forum/:fid?": {
+        "path": "/forum/:fid?",
+        "categories": [
+          "bbs"
+        ],
+        "example": "/south-plus/forum/8",
+        "parameters": {
+          "fid": "论坛版块 ID，默认为 8（ACG交流）。可在 thread.php?fid-XXX.html 中找到。常用 fid 见下方说明"
+        },
+        "description": "::: tip 常用版块 ID\n\n| fid | 版块名称 | 需要登录 |\n| --- | -------- | :------: |\n| 48  | 询问求物 |    是    |\n| 8   | ACG 交流 |    否    |\n| 12  | 轻小说   |    是    |\n| 9   | 茶馆     |    是    |\n| 201 | COSPLAY  |    是    |\n| 6   | 游戏资源 |    是    |\n| 5   | 实用漫画 |    是    |\n| 4   | 实用动画 |    是    |\n| 128 | 同人音声 |    是    |\n| 208 | AI 交流  |    是    |\n\n:::\n\n::: tip Cookie 示例\n\n```\neb9e6_winduser=XXXX...XXXX%3D%3D; eb9e6_cknum=YYYY...YYYY%3D; eb9e6_ck_info=%2F%09; cf_clearance=ZZZZ...ZZZZ; eb9e6_lastpos=other; eb9e6_ol_offset=123456; eb9e6_readlog=%2C...; eb9e6_threadlog=%2C...; eb9e6_lastvisit=...; peacemaker=1\n```\n\n`eb9e6_winduser` 和 `eb9e6_cknum` 是必需的认证 cookie，其余可选。\n:::\n\n::: tip UA 说明\nSouth Plus 服务器会校验 Cookie 与浏览器 User-Agent 的绑定关系。Cookie 仅在登录时使用的浏览器版本下有效，不同版本或不同平台的 UA 均会被拒绝。\n\n如需更换 Cookie，请同时设置 `SOUTHPLUS_UA` 为对应浏览器的 UA 字符串。未设置时 RSSHub 会自动生成随机的浏览器 UA。\n\n如果 Cookie 是通过代理获取的，需设置 RSSHub 全局环境变量 `PROXY_URI`（如 `http://host:port`），否则服务器会拒绝认证。\n:::\n:::",
+        "features": {
+          "requireConfig": [
+            {
+              "name": "SOUTHPLUS_COOKIE",
+              "optional": true,
+              "description": "登录 Cookie，格式为分号+空格分隔的 key=value 对。核心字段：eb9e6_winduser（认证令牌）、eb9e6_cknum（会话校验）。从浏览器登录后导出完整 cookie 字符串即可。"
+            },
+            {
+              "name": "SOUTHPLUS_UA",
+              "optional": true,
+              "description": "浏览器 User-Agent，需与获取 Cookie 时使用的浏览器版本完全一致。可从浏览器 F12 → Network → 请求头中复制。未设置时由 RSSHub 自动生成随机浏览器 UA。"
+            }
+          ],
+          "requirePuppeteer": false,
+          "antiCrawler": false,
+          "supportBT": false,
+          "supportPodcast": false,
+          "supportScihub": false
+        },
+        "radar": [
+          {
+            "source": [
+              "south-plus.net/thread.php",
+              "snow-plus.net/thread.php"
+            ],
+            "target": "/forum/:fid"
+          }
+        ],
+        "name": "论坛帖子",
+        "maintainers": [
+          "NicholasYZ"
+        ],
+        "location": "forum.ts",
+        "module": () => import('@/routes/south-plus/forum.ts')
+      }
+    },
+    "apiRoutes": {},
+    "name": "South Plus",
+    "url": "south-plus.net",
+    "description": "::: tip\nSouth Plus (南 +) 是一个基于 PHPWind 架构的 ACG 综合交流论坛。\n\n部分板块需要登录才能访问，请配置 `SOUTHPLUS_COOKIE` 环境变量。\n\n**获取 Cookie 和 User-Agent 步骤：**\n\n1. 在浏览器中登录 [south-plus.net](https://south-plus.net) 或 [snow-plus.net](https://snow-plus.net)\n2. 确认右上角显示用户名和「退出」链接（而非「登录」）\n3. 按 F12 → **Network**（网络）→ 刷新页面 → 点击任意请求 → **Request Headers**（请求头）\n4. 复制 `Cookie` 字段的完整值（单行，分号 + 空格分隔），设置为 `SOUTHPLUS_COOKIE`\n5. 复制 `User-Agent` 字段的值，设置为 `SOUTHPLUS_UA`（Cookie 与 UA 版本绑定，必须匹配）\n6. 如果 Cookie 是通过代理获取的，需设置 RSSHub 全局环境变量 `PROXY_URI`（如 `http://host:port`）\n\n:::",
+    "lang": "zh-CN"
   },
   "spankbang": {
     "routes": {
@@ -112919,6 +114650,309 @@ export default {
     "url": "t.me",
     "lang": "en"
   },
+  "temponw": {
+    "routes": {
+      "/estates/:area?": {
+        "path": "/estates/:area?",
+        "name": "新着物件",
+        "url": "www.temponw.com",
+        "maintainers": [
+          "pseudoyu"
+        ],
+        "example": "/temponw/estates/tokyo",
+        "parameters": {
+          "area": {
+            "description": "`tokyo` for the 23 wards of Tokyo; omit for nationwide",
+            "options": [
+              {
+                "value": "tokyo",
+                "label": "東京23区"
+              }
+            ]
+          }
+        },
+        "description": "Listings on 店舗ネットワーク sorted by 新着順 (first two pages, 20 listings). Each item's `_extra` carries the structured listing fields (賃料，坪，階，最寄駅，保証金，礼金，造作譲渡料，不可業態，…) parsed from the list and detail pages; unknown values are `null`. The site does not publish listing dates, so items have no `pubDate`; the same unit may be listed by several agencies under different ids.",
+        "categories": [
+          "other"
+        ],
+        "features": {
+          "requireConfig": false,
+          "requirePuppeteer": false,
+          "antiCrawler": false,
+          "supportRadar": true
+        },
+        "radar": [
+          {
+            "source": [
+              "www.temponw.com/result",
+              "www.temponw.com/"
+            ],
+            "target": "/estates"
+          }
+        ],
+        "location": "estates.ts",
+        "module": () => import('@/routes/temponw/estates.ts')
+      }
+    },
+    "apiRoutes": {},
+    "name": "Temponw",
+    "url": "www.temponw.com",
+    "description": "店舗ネットワーク — 貸店舗・テナント物件情報サイト",
+    "lang": "ja",
+    "ja": {
+      "name": "店舗ネットワーク"
+    }
+  },
+  "temposmart": {
+    "routes": {
+      "/estates/:pref?/:district?": {
+        "path": "/estates/:pref?/:district?",
+        "name": "新着物件",
+        "url": "www.temposmart.jp",
+        "maintainers": [
+          "pseudoyu"
+        ],
+        "example": "/temposmart/estates/tokyo",
+        "parameters": {
+          "pref": {
+            "description": "都道府県 slug or JIS X 0401 code",
+            "default": "tokyo",
+            "options": [
+              {
+                "value": "tokyo",
+                "label": "東京都 (13)"
+              },
+              {
+                "value": "kanagawa",
+                "label": "神奈川県 (14)"
+              },
+              {
+                "value": "saitama",
+                "label": "埼玉県 (11)"
+              },
+              {
+                "value": "chiba",
+                "label": "千葉県 (12)"
+              },
+              {
+                "value": "osaka",
+                "label": "大阪府 (27)"
+              },
+              {
+                "value": "kyoto",
+                "label": "京都府 (26)"
+              },
+              {
+                "value": "hyogo",
+                "label": "兵庫県 (28)"
+              }
+            ]
+          },
+          "district": {
+            "description": "Optional 市区町村, as a 5-digit JIS X 0402 code (新宿区 `13104`, 港区 `13103`, 横浜市中区 `14104`). Must belong to `pref`; omit for the whole prefecture."
+          }
+        },
+        "description": "New listings on テンポスマート for one prefecture — or one 市区町村 when `district` is given — sorted by 新着順 (first page, 50 listings). Each item's `_extra` carries the structured listing fields (賃料，坪，坪単価，階，最寄駅，保証金，礼金，造作譲渡料，現況，業種制限，登録日，…) parsed from the list and detail pages; unknown values are `null`.\n\n`district` is a 5-digit JIS X 0402 市区町村 code whose first two digits are the prefecture — `/temposmart/estates/tokyo/13104` is 新宿区. A code from another prefecture is rejected rather than silently returning that prefecture's listings.\n\n| Query   | Description                                                                  | Default |\n| ------- | ---------------------------------------------------------------------------- | ------- |\n| `limit` | Number of listings to process (detail pages are fetched per listing), max 50 | 30      |",
+        "categories": [
+          "other"
+        ],
+        "features": {
+          "requireConfig": false,
+          "requirePuppeteer": false,
+          "antiCrawler": false,
+          "supportRadar": true
+        },
+        "radar": [
+          {
+            "source": [
+              "www.temposmart.jp/estates/pref/:pref"
+            ],
+            "target": "/estates/:pref"
+          }
+        ],
+        "location": "estates.ts",
+        "module": () => import('@/routes/temposmart/estates.ts')
+      }
+    },
+    "apiRoutes": {},
+    "name": "Temposmart",
+    "url": "www.temposmart.jp",
+    "description": "テンポスマート — 飲食店向け居抜き・貸店舗物件情報サイト",
+    "lang": "ja",
+    "ja": {
+      "name": "テンポスマート"
+    }
+  },
+  "tenant-shop": {
+    "routes": {
+      "/chintai/:pref?/:type?": {
+        "path": "/chintai/:pref?/:type?",
+        "name": "新着物件",
+        "url": "www.tenant-shop.com",
+        "maintainers": [
+          "pseudoyu"
+        ],
+        "example": "/tenant-shop/chintai/tokyo/food",
+        "parameters": {
+          "pref": {
+            "description": "Prefecture slug or the site's `pa` code",
+            "default": "tokyo",
+            "options": [
+              {
+                "value": "tokyo",
+                "label": "東京都 (14)"
+              },
+              {
+                "value": "kanagawa",
+                "label": "神奈川県 (15)"
+              },
+              {
+                "value": "saitama",
+                "label": "埼玉県 (16)"
+              },
+              {
+                "value": "chiba",
+                "label": "千葉県 (17)"
+              },
+              {
+                "value": "ibaraki",
+                "label": "茨城県 (18)"
+              },
+              {
+                "value": "tochigi",
+                "label": "栃木県 (19)"
+              },
+              {
+                "value": "gunma",
+                "label": "群馬県 (20)"
+              },
+              {
+                "value": "hokkaido",
+                "label": "北海道 (7)"
+              },
+              {
+                "value": "miyagi",
+                "label": "宮城県 (10)"
+              },
+              {
+                "value": "niigata",
+                "label": "新潟県 (21)"
+              },
+              {
+                "value": "nagano",
+                "label": "長野県 (28)"
+              },
+              {
+                "value": "aichi",
+                "label": "愛知県 (25)"
+              },
+              {
+                "value": "gifu",
+                "label": "岐阜県 (26)"
+              },
+              {
+                "value": "shizuoka",
+                "label": "静岡県 (27)"
+              },
+              {
+                "value": "osaka",
+                "label": "大阪府 (1)"
+              },
+              {
+                "value": "kyoto",
+                "label": "京都府 (31)"
+              },
+              {
+                "value": "hyogo",
+                "label": "兵庫県 (32)"
+              },
+              {
+                "value": "shiga",
+                "label": "滋賀県 (5)"
+              },
+              {
+                "value": "nara",
+                "label": "奈良県 (34)"
+              }
+            ]
+          },
+          "type": {
+            "description": "Property type filter; omit for all types",
+            "options": [
+              {
+                "value": "inuki",
+                "label": "居抜き"
+              },
+              {
+                "value": "food",
+                "label": "飲食"
+              },
+              {
+                "value": "office",
+                "label": "オフィス"
+              },
+              {
+                "value": "retail",
+                "label": "物販・サービス"
+              },
+              {
+                "value": "warehouse",
+                "label": "倉庫・工場"
+              },
+              {
+                "value": "beauty",
+                "label": "美容・エステ・医療"
+              },
+              {
+                "value": "roadside",
+                "label": "沿道サービス・借地"
+              },
+              {
+                "value": "mall",
+                "label": "商業施設"
+              }
+            ]
+          }
+        },
+        "description": "New listings (新着物件) on テナントショップネットワーク for one prefecture, newest first (first page, 30 listings). Each item's `_extra` carries the structured listing fields (賃料，坪，坪単価，階，最寄駅，保証金・敷金，礼金，物件登録日，…) parsed from the list and detail pages; unknown values are `null`. East Japan prefectures are served by tenant-shop.com and 愛知 and westward by tenant-shop.jp.\n\n| Query   | Description                                                                  | Default |\n| ------- | ---------------------------------------------------------------------------- | ------- |\n| `limit` | Number of listings to process (detail pages are fetched per listing), max 30 | 30      |",
+        "categories": [
+          "other"
+        ],
+        "features": {
+          "requireConfig": false,
+          "requirePuppeteer": false,
+          "antiCrawler": false,
+          "supportRadar": true
+        },
+        "radar": [
+          {
+            "source": [
+              "www.tenant-shop.com/chintai_biz/pa-:pa/shin-1",
+              "www.tenant-shop.com/chintai_biz/pa-:pa"
+            ],
+            "target": "/chintai/:pa"
+          },
+          {
+            "source": [
+              "www.tenant-shop.jp/chintai_biz/pa-:pa/shin-1",
+              "www.tenant-shop.jp/chintai_biz/pa-:pa"
+            ],
+            "target": "/chintai/:pa"
+          }
+        ],
+        "location": "chintai.ts",
+        "module": () => import('@/routes/tenant-shop/chintai.ts')
+      }
+    },
+    "apiRoutes": {},
+    "name": "Tenant Shop Network",
+    "url": "www.tenant-shop.com",
+    "description": "テナントショップネットワーク — 貸店舗・貸事務所・居抜き物件情報サイト（東日本は tenant-shop.com、愛知以西は tenant-shop.jp）",
+    "lang": "ja",
+    "ja": {
+      "name": "テナントショップネットワーク"
+    }
+  },
   "tencent": {
     "routes": {
       "/pvp/newsindex/:type": {
@@ -113641,7 +115675,7 @@ export default {
           "HenryQW",
           "vbali"
         ],
-        "description": "| Hub         | Hub name            |\n| ----------- | ------------------- |\n|             | All Posts           |\n| android     | Android             |\n| apple       | Apple               |\n| apps        | Apps & Software     |\n| blackberry  | BlackBerry          |\n| culture     | Culture             |\n| gaming      | Gaming              |\n| hd          | HD & Home           |\n| microsoft   | Microsoft           |\n| photography | Photography & Video |\n| policy      | Policy & Law        |\n| web         | Web & Social        |\n\nProvides a better reading experience (full text articles) over the official one.",
+        "description": "| Hub            | Hub name       |\n| -------------- | -------------- |\n|                | All Posts      |\n| amazon         | Amazon         |\n| android        | Android        |\n| apple          | Apple          |\n| apps           | Apps           |\n| blackberry     | BlackBerry     |\n| business       | Business       |\n| creators       | Creators       |\n| culture        | Culture        |\n| entertainment  | Entertainment  |\n| film           | Film           |\n| games          | Gaming         |\n| google         | Google         |\n| health         | Health         |\n| meta           | Meta           |\n| microsoft      | Microsoft      |\n| music          | Music          |\n| policy         | Policy         |\n| reviews        | Reviews        |\n| samsung        | Samsung        |\n| science        | Science        |\n| space          | Space          |\n| streaming      | Streaming      |\n| tech           | Tech           |\n| transportation | Transportation |\n| tv             | TV Shows       |\n| web            | Web            |\n\nProvides a better reading experience (full text articles) over the official one.",
         "location": "index.ts",
         "module": () => import('@/routes/theverge/index.ts')
       }
@@ -114721,6 +116755,99 @@ export default {
     "url": "tokeninsight.com",
     "description": "::: tip\nTokenInsight also provides official RSS, you can take a look at <https://api.tokeninsight.com/reference/rss>.\n:::",
     "lang": "en"
+  },
+  "tokyometro": {
+    "routes": {
+      "/ridership/:year?": {
+        "path": "/ridership/:year?",
+        "name": "各駅の乗降人員ランキング",
+        "url": "www.tokyometro.jp",
+        "maintainers": [
+          "pseudoyu"
+        ],
+        "example": "/tokyometro/ridership",
+        "parameters": {
+          "year": {
+            "description": "Fiscal year (`2020` … latest); omit for the latest year"
+          }
+        },
+        "description": "Annual 駅別乗降人員 (one-day average) for every Tokyo Metro station, from [各駅の乗降人員ランキング](https://www.tokyometro.jp/corporate/enterprise/passenger_rail/transportation/passengers/index.html). One item per station and fiscal year; `_extra` carries `operator`, `station`, `line` (several lines joined with `・`), `fiscal_year`, `daily_average` (人/日), `rank`, `yoy_pct` and the page's cell text in `raw`. Stations in the 直通連絡駅・共用駅 table (渋谷, 北千住, 中目黒, …) have no rank because the operator does not rank them. 国会議事堂前 and 溜池山王 are listed as one station (国会・溜池), as on the page. The operator does not publish a release date, so items have no `pubDate`.",
+        "categories": [
+          "other"
+        ],
+        "features": {
+          "requireConfig": false,
+          "requirePuppeteer": false,
+          "antiCrawler": false,
+          "supportRadar": true
+        },
+        "radar": [
+          {
+            "source": [
+              "www.tokyometro.jp/corporate/enterprise/passenger_rail/transportation/passengers/:page"
+            ],
+            "target": "/ridership"
+          }
+        ],
+        "location": "ridership.ts",
+        "module": () => import('@/routes/tokyometro/ridership.ts')
+      }
+    },
+    "apiRoutes": {},
+    "name": "Tokyo Metro",
+    "url": "www.tokyometro.jp",
+    "description": "東京メトロ — 東京地下鉄株式会社",
+    "lang": "ja",
+    "ja": {
+      "name": "東京メトロ"
+    }
+  },
+  "tokyu": {
+    "routes": {
+      "/ridership/:year?": {
+        "path": "/ridership/:year?",
+        "name": "駅別乗降人員",
+        "url": "www.tokyu.co.jp",
+        "maintainers": [
+          "pseudoyu"
+        ],
+        "example": "/tokyu/ridership",
+        "parameters": {
+          "year": {
+            "description": "Fiscal year (`2014` … latest); omit for the latest year"
+          }
+        },
+        "description": "Annual 駅別乗降人員 (one-day average) for every Tokyu station, from [駅別乗降人員・輸送人員](https://www.tokyu.co.jp/railway/company/business/passengers/). One item per station, line and fiscal year (渋谷, 日吉, 蒲田 … appear once per line, as on the page); `_extra` carries `operator`, `station`, `line`, `fiscal_year`, `daily_average` (計, 人/日), `yoy_pct` and the page's cell text in `raw` (定期 / 定期外 / 計 / 前年比 / previous-year figure). `rank` is `null` because the operator publishes no ranking. 世田谷線 is published as a single 全線 figure and is not included. The operator does not publish a release date, so items have no `pubDate`.",
+        "categories": [
+          "other"
+        ],
+        "features": {
+          "requireConfig": false,
+          "requirePuppeteer": false,
+          "antiCrawler": false,
+          "supportRadar": true
+        },
+        "radar": [
+          {
+            "source": [
+              "www.tokyu.co.jp/railway/company/business/passengers/:year",
+              "www.tokyu.co.jp/railway/company/business/passengers/"
+            ],
+            "target": "/ridership/:year"
+          }
+        ],
+        "location": "ridership.ts",
+        "module": () => import('@/routes/tokyu/ridership.ts')
+      }
+    },
+    "apiRoutes": {},
+    "name": "Tokyu Railways",
+    "url": "www.tokyu.co.jp",
+    "description": "東急電鉄株式会社",
+    "lang": "ja",
+    "ja": {
+      "name": "東急電鉄"
+    }
   },
   "tongli": {
     "routes": {
@@ -122556,38 +124683,6 @@ export default {
         "location": "user-stock.ts",
         "module": () => import('@/routes/xueqiu/user-stock.ts')
       },
-      "/column/:id": {
-        "path": "/column/:id",
-        "categories": [
-          "finance"
-        ],
-        "example": "/xueqiu/column/9962554712",
-        "parameters": {
-          "id": "用户 id, 可在用户主页 URL 中找到"
-        },
-        "features": {
-          "requireConfig": false,
-          "requirePuppeteer": false,
-          "antiCrawler": true,
-          "supportBT": false,
-          "supportPodcast": false,
-          "supportScihub": false
-        },
-        "radar": [
-          {
-            "source": [
-              "xueqiu.com/:id/column"
-            ]
-          }
-        ],
-        "name": "用户专栏",
-        "maintainers": [
-          "TonyRL",
-          "pseudoyu"
-        ],
-        "location": "column.ts",
-        "module": () => import('@/routes/xueqiu/column.ts')
-      },
       "/fund/:id": {
         "path": "/fund/:id",
         "categories": [
@@ -122736,6 +124831,41 @@ export default {
         "location": "hots.ts",
         "module": () => import('@/routes/xueqiu/hots.ts')
       },
+      "/status/:uid/:id": {
+        "path": "/status/:uid/:id",
+        "categories": [
+          "finance"
+        ],
+        "example": "/xueqiu/status/8152922548/409443228",
+        "parameters": {
+          "uid": "用户 id，可在动态页 URL 中找到",
+          "id": "动态 id，可在动态页 URL 中找到"
+        },
+        "features": {
+          "requireConfig": false,
+          "requirePuppeteer": false,
+          "antiCrawler": true,
+          "supportBT": false,
+          "supportPodcast": false,
+          "supportScihub": false
+        },
+        "radar": [
+          {
+            "source": [
+              "xueqiu.com/:uid/:id"
+            ],
+            "target": "/status/:uid/:id"
+          }
+        ],
+        "name": "动态详情",
+        "maintainers": [
+          "ruesin"
+        ],
+        "url": "xueqiu.com",
+        "description": "获取单条动态或专栏文章的完整内容（列表类路由的 description 只有截断预览，需要全文时用本路由按动态页 URL 逐条获取）。",
+        "location": "status.ts",
+        "module": () => import('@/routes/xueqiu/status.ts')
+      },
       "/stock_info/:id/:type?": {
         "path": "/stock_info/:id/:type?",
         "categories": [
@@ -122804,6 +124934,38 @@ export default {
         "description": "| 原发布 | 长文 | 问答 | 热门 | 交易 |\n| ------ | ---- | ---- | ---- | ---- |\n| 0      | 2    | 4    | 9    | 11   |",
         "location": "user.ts",
         "module": () => import('@/routes/xueqiu/user.ts')
+      },
+      "/column/:id": {
+        "path": "/column/:id",
+        "categories": [
+          "finance"
+        ],
+        "example": "/xueqiu/column/9962554712",
+        "parameters": {
+          "id": "用户 id, 可在用户主页 URL 中找到"
+        },
+        "features": {
+          "requireConfig": false,
+          "requirePuppeteer": false,
+          "antiCrawler": true,
+          "supportBT": false,
+          "supportPodcast": false,
+          "supportScihub": false
+        },
+        "radar": [
+          {
+            "source": [
+              "xueqiu.com/:id/column"
+            ]
+          }
+        ],
+        "name": "用户专栏",
+        "maintainers": [
+          "TonyRL",
+          "pseudoyu"
+        ],
+        "location": "column.ts",
+        "module": () => import('@/routes/xueqiu/column.ts')
       },
       "/stock_comments/:id": {
         "path": "/stock_comments/:id",
@@ -123228,6 +125390,7 @@ export default {
         ],
         "features": {
           "antiCrawler": true,
+          "requirePuppeteer": true,
           "requireConfig": [
             {
               "optional": true,
@@ -123260,6 +125423,7 @@ export default {
         ],
         "features": {
           "antiCrawler": true,
+          "requirePuppeteer": true,
           "requireConfig": [
             {
               "optional": true,
@@ -126876,6 +129040,87 @@ export default {
     "name": "禁漫天堂",
     "url": "18comic.org",
     "description": "::: tip\n禁漫天堂有多个备用域名，本路由默认使用域名 `https://jmcomic.me`，若该域名无法访问，可以通过在路由最后加上 `?domain=<域名>` 指定路由访问的域名。如指定备用域名为 `https://jmcomic1.me`，则在所有禁漫天堂路由最后加上 `?domain=jmcomic1.me` 即可，此时路由为 [`/18comic?domain=jmcomic1.me`](https://rsshub.app/18comic?domain=jmcomic1.me)\n:::",
+    "lang": "zh-CN"
+  },
+  "1lou": {
+    "routes": {
+      "/:params{.+}?": {
+        "path": "/:params{.+}?",
+        "name": "通用",
+        "url": "1lou.me",
+        "maintainers": [
+          "falling",
+          "nczitzk"
+        ],
+        "example": "/1lou/forum-2-1",
+        "parameters": {
+          "params": "路径参数，可以在对应页面的 URL 中找到"
+        },
+        "description": "::: tip\n`1lou.me/` 后的内容填入 params 参数，以下是几个例子：\n\n若订阅 [大陆电视剧](https://www.1lou.me/forum-2-1.htm?tagids=0_97_0_0)，网址为 `https://www.1lou.me/forum-2-1.htm?tagids=0_97_0_0`。截取 `https://www.1lou.me/` 到末尾 `.htm` 的部分 `forum-2-1` 作为参数，并补充 `tagids`，此时路由为 [`/1lou/forum-2-1?tagids=0_97_0_0`](https://rsshub.app/1lou/forum-2-1?tagids=0_97_0_0)。\n\n若订阅 [最新发帖电视剧](https://www.1lou.me/forum-2-1.htm?orderby=tid\\&digest=0)，网址为 `https://www.1lou.me/forum-2-1.htm?orderby=tid&digest=0`。截取 `https://www.1lou.me/` 到末尾 `.htm` 的部分 `forum-2-1` 作为参数，并补充 `orderby`，此时路由为 [`/1lou/forum-2-1?orderby=tid`](https://rsshub.app/1lou/forum-2-1?orderby=tid)。\n\n搜索功能已移至 “搜索” 路由。\n:::",
+        "categories": [
+          "multimedia"
+        ],
+        "features": {
+          "requireConfig": false,
+          "requirePuppeteer": false,
+          "antiCrawler": false,
+          "supportRadar": true,
+          "supportBT": false,
+          "supportPodcast": false,
+          "supportScihub": false
+        },
+        "radar": [
+          {
+            "source": [
+              "1lou.me/:params"
+            ]
+          }
+        ],
+        "location": "index.ts",
+        "module": () => import('@/routes/1lou/index.ts')
+      },
+      "/search/:params": {
+        "path": "/search/:params",
+        "name": "搜索",
+        "url": "1lou.me/search",
+        "maintainers": [
+          "JimenezLi"
+        ],
+        "example": "/1lou/search/繁花",
+        "parameters": {
+          "params": "搜索关键词"
+        },
+        "description": "搜索路由，支持关键词搜索。",
+        "categories": [
+          "multimedia"
+        ],
+        "features": {
+          "requireConfig": false,
+          "requirePuppeteer": false,
+          "antiCrawler": false,
+          "supportRadar": true,
+          "supportBT": false,
+          "supportPodcast": false,
+          "supportScihub": false
+        },
+        "radar": [
+          {
+            "source": [
+              "1lou.me/search"
+            ]
+          }
+        ],
+        "location": "search.ts",
+        "module": () => import('@/routes/1lou/search.ts')
+      }
+    },
+    "apiRoutes": {},
+    "name": "BT 之家 1LOU 站",
+    "url": "1lou.me",
+    "categories": [
+      "multimedia"
+    ],
+    "description": "",
     "lang": "zh-CN"
   },
   "36kr": {
@@ -144315,7 +146560,7 @@ export default {
             {
               "name": "JAVDB_SESSION",
               "description": "JavDB登陆后的session值，可在控制台的cookie下查找 `_jdb_session` 的值，即可获取",
-              "optional": true
+              "optional": false
             }
           ],
           "requirePuppeteer": false,
@@ -148245,6 +150490,14 @@ export default {
         "categories": [
           "programming"
         ],
+        "features": {
+          "requireConfig": false,
+          "requirePuppeteer": false,
+          "antiCrawler": true,
+          "supportBT": false,
+          "supportPodcast": false,
+          "supportScihub": false
+        },
         "description": "OpenAI Cookbook 提供了大量使用 OpenAI API 的实用指南和示例代码，涵盖了从基础到高级的各种主题，包括 GPT 模型、嵌入、函数调用、微调等。这里汇集了最新的 API 功能介绍和流行的应用案例，是开发者学习和应用 OpenAI 技术的宝贵资源。",
         "maintainers": [
           "liyaozhong"
@@ -148252,11 +150505,12 @@ export default {
         "radar": [
           {
             "source": [
+              "developers.openai.com/cookbook",
               "cookbook.openai.com/"
             ]
           }
         ],
-        "url": "cookbook.openai.com/",
+        "url": "developers.openai.com/cookbook",
         "example": "/openai/cookbook",
         "name": "Cookbook",
         "location": "cookbook.ts",
@@ -149387,54 +151641,6 @@ export default {
         "location": "weixin/pay/announce.ts",
         "module": () => import('@/routes/qq/weixin/pay/announce.ts')
       },
-      "/kg/reply/:playId": {
-        "path": "/kg/reply/:playId",
-        "categories": [
-          "social-media"
-        ],
-        "example": "/qq/kg/reply/OhXHMdO1VxLWQOOm",
-        "parameters": {
-          "playId": "音频页 ID, 可在对应页面的 URL 中找到"
-        },
-        "features": {
-          "requireConfig": false,
-          "requirePuppeteer": false,
-          "antiCrawler": false,
-          "supportBT": false,
-          "supportPodcast": false,
-          "supportScihub": false
-        },
-        "name": "全民K歌 - 用户作品评论动态",
-        "maintainers": [
-          "zhangxiang012"
-        ],
-        "location": "kg/reply.ts",
-        "module": () => import('@/routes/qq/kg/reply.ts')
-      },
-      "/kg/:userId": {
-        "path": "/kg/:userId",
-        "categories": [
-          "social-media"
-        ],
-        "example": "/qq/kg/639a9a86272c308e33",
-        "parameters": {
-          "userId": "用户 ID, 可在对应页面的 URL 中找到"
-        },
-        "features": {
-          "requireConfig": false,
-          "requirePuppeteer": false,
-          "antiCrawler": false,
-          "supportBT": false,
-          "supportPodcast": true,
-          "supportScihub": false
-        },
-        "name": "全民K歌 - 用户作品列表",
-        "maintainers": [
-          "zhangxiang012"
-        ],
-        "location": "kg/user.ts",
-        "module": () => import('@/routes/qq/kg/user.ts')
-      },
       "/ac/comic/:id?": {
         "path": "/ac/comic/:id?",
         "categories": [
@@ -149554,6 +151760,30 @@ export default {
         "url": "vp.fact.qq.com/home",
         "location": "fact/index.tsx",
         "module": () => import('@/routes/qq/fact/index.tsx')
+      },
+      "/kg/:userId": {
+        "path": "/kg/:userId",
+        "categories": [
+          "social-media"
+        ],
+        "example": "/qq/kg/639a9a86272c308e33",
+        "parameters": {
+          "userId": "用户 ID, 可在对应页面的 URL 中找到"
+        },
+        "features": {
+          "requireConfig": false,
+          "requirePuppeteer": false,
+          "antiCrawler": false,
+          "supportBT": false,
+          "supportPodcast": true,
+          "supportScihub": false
+        },
+        "name": "全民K歌 - 用户作品列表",
+        "maintainers": [
+          "zhangxiang012"
+        ],
+        "location": "kg/user.ts",
+        "module": () => import('@/routes/qq/kg/user.ts')
       },
       "/lol/news/:category?": {
         "path": "/lol/news/:category?",
@@ -149759,6 +151989,30 @@ export default {
         "description": "| 月票榜 | 飙升榜 | 新作榜 | 畅销榜 | TOP100 | 男生榜 | 女生榜 |\n| ------ | ------ | ------ | ------ | ------ | ------ | ------ |\n| mt     | rise   | new    | pay    | top    | male   | female |\n\n::: tip\n`time` 参数仅在 `type` 参数选为 **月票榜** 的时候生效。\n:::",
         "location": "ac/rank.ts",
         "module": () => import('@/routes/qq/ac/rank.ts')
+      },
+      "/kg/reply/:playId": {
+        "path": "/kg/reply/:playId",
+        "categories": [
+          "social-media"
+        ],
+        "example": "/qq/kg/reply/OhXHMdO1VxLWQOOm",
+        "parameters": {
+          "playId": "音频页 ID, 可在对应页面的 URL 中找到"
+        },
+        "features": {
+          "requireConfig": false,
+          "requirePuppeteer": false,
+          "antiCrawler": false,
+          "supportBT": false,
+          "supportPodcast": false,
+          "supportScihub": false
+        },
+        "name": "全民K歌 - 用户作品评论动态",
+        "maintainers": [
+          "zhangxiang012"
+        ],
+        "location": "kg/reply.ts",
+        "module": () => import('@/routes/qq/kg/reply.ts')
       }
     },
     "apiRoutes": {},
@@ -156883,7 +159137,8 @@ export default {
             },
             {
               "name": "WEIBO_REDIRECT_URL",
-              "description": ""
+              "optional": true,
+              "description": "OAuth callback URL. Defaults to `<request origin>/weibo/timeline/0`. Set it when the auto-composed URL doesn't work"
             }
           ],
           "requirePuppeteer": false,
@@ -158561,7 +160816,7 @@ export default {
           "requireConfig": [
             {
               "name": "ZHIHU_COOKIES",
-              "description": ""
+              "description": "A complete d_c0 and __zse_ck cookie pair skips session initialization. Otherwise Workers use a Playwright browser session; Docker and Vercel generate credentials with JSDOM."
             }
           ],
           "requirePuppeteer": false,
@@ -158598,7 +160853,7 @@ export default {
           "requireConfig": [
             {
               "name": "ZHIHU_COOKIES",
-              "description": "",
+              "description": "A complete d_c0 and __zse_ck cookie pair skips session initialization. Otherwise Workers use a Playwright browser session; Docker and Vercel generate credentials with JSDOM.",
               "optional": true
             }
           ],
@@ -158672,7 +160927,7 @@ export default {
           "requireConfig": [
             {
               "name": "ZHIHU_COOKIES",
-              "description": "",
+              "description": "A complete d_c0 and __zse_ck cookie pair skips session initialization. Otherwise Workers use a Playwright browser session; Docker and Vercel generate credentials with JSDOM.",
               "optional": true
             }
           ],
@@ -158744,7 +160999,7 @@ export default {
           "requireConfig": [
             {
               "name": "ZHIHU_COOKIES",
-              "description": "",
+              "description": "A complete d_c0 and __zse_ck cookie pair skips session initialization. Otherwise Workers use a Playwright browser session; Docker and Vercel generate credentials with JSDOM.",
               "optional": true
             }
           ],
@@ -158785,7 +161040,7 @@ export default {
           "requireConfig": [
             {
               "name": "ZHIHU_COOKIES",
-              "description": "",
+              "description": "A complete d_c0 and __zse_ck cookie pair skips session initialization. Otherwise Workers use a Playwright browser session; Docker and Vercel generate credentials with JSDOM.",
               "optional": true
             }
           ],
@@ -158853,7 +161108,7 @@ export default {
           "requireConfig": [
             {
               "name": "ZHIHU_COOKIES",
-              "description": ""
+              "description": "A complete d_c0 and __zse_ck cookie pair skips session initialization. Otherwise Workers use a Playwright browser session; Docker and Vercel generate credentials with JSDOM."
             }
           ],
           "requirePuppeteer": false,
@@ -159101,6 +161356,388 @@ export default {
     "name": "Finology Insider",
     "url": "insider.finology.in",
     "lang": "en"
+  },
+  "pixiv": {
+    "routes": {
+      "/user/bookmarks/:id": {
+        "path": "/user/bookmarks/:id",
+        "categories": [
+          "social-media"
+        ],
+        "example": "/pixiv/user/bookmarks/15288095",
+        "parameters": {
+          "id": "user id, available in user's homepage URL"
+        },
+        "features": {
+          "requireConfig": false,
+          "requirePuppeteer": false,
+          "antiCrawler": false,
+          "supportBT": false,
+          "supportPodcast": false,
+          "supportScihub": false,
+          "nsfw": true
+        },
+        "radar": [
+          {
+            "source": [
+              "www.pixiv.net/users/:id/bookmarks/artworks",
+              "www.pixiv.net/en/users/:id/bookmarks/artworks"
+            ]
+          }
+        ],
+        "name": "User Bookmark",
+        "maintainers": [
+          "EYHN"
+        ],
+        "location": "bookmarks.ts",
+        "module": () => import('@/routes/pixiv/bookmarks.ts')
+      },
+      "/user/illustfollows": {
+        "path": "/user/illustfollows",
+        "categories": [
+          "social-media"
+        ],
+        "example": "/pixiv/user/illustfollows",
+        "parameters": {},
+        "features": {
+          "requireConfig": [
+            {
+              "name": "PIXIV_REFRESHTOKEN",
+              "description": ""
+            }
+          ],
+          "requirePuppeteer": false,
+          "antiCrawler": false,
+          "supportBT": false,
+          "supportPodcast": false,
+          "supportScihub": false,
+          "nsfw": true
+        },
+        "radar": [
+          {
+            "source": [
+              "www.pixiv.net/bookmark_new_illust.php"
+            ]
+          }
+        ],
+        "name": "Following timeline",
+        "maintainers": [
+          "ClarkeCheng"
+        ],
+        "url": "www.pixiv.net/bookmark_new_illust.php",
+        "description": "::: warning\nOnly for self-hosted\n:::",
+        "location": "illustfollow.ts",
+        "module": () => import('@/routes/pixiv/illustfollow.ts')
+      },
+      "/ranking/:mode/:date?": {
+        "path": "/ranking/:mode/:date?",
+        "categories": [
+          "social-media"
+        ],
+        "view": 2,
+        "example": "/pixiv/ranking/week",
+        "parameters": {
+          "mode": {
+            "description": "rank type",
+            "options": [
+              {
+                "value": "day",
+                "label": "daily rank"
+              },
+              {
+                "value": "week",
+                "label": "weekly rank"
+              },
+              {
+                "value": "month",
+                "label": "monthly rank"
+              },
+              {
+                "value": "day_male",
+                "label": "male rank"
+              },
+              {
+                "value": "day_felame",
+                "label": "female rank"
+              },
+              {
+                "value": "day_ai",
+                "label": "AI-generated work Rankings"
+              },
+              {
+                "value": "week_original",
+                "label": "original rank"
+              },
+              {
+                "value": "week_rookie",
+                "label": "rookie user rank"
+              },
+              {
+                "value": "day_r18",
+                "label": "R-18 daily rank"
+              },
+              {
+                "value": "day_r18_ai",
+                "label": "R-18 AI-generated work"
+              },
+              {
+                "value": "day_male_r18",
+                "label": "R-18 male rank"
+              },
+              {
+                "value": "day_female_r18",
+                "label": "R-18 female rank"
+              },
+              {
+                "value": "week_r18",
+                "label": "R-18 weekly rank"
+              },
+              {
+                "value": "week_r18g",
+                "label": "R-18G rank"
+              }
+            ],
+            "default": "day"
+          },
+          "date": "format: `2018-4-25`"
+        },
+        "features": {
+          "requireConfig": false,
+          "requirePuppeteer": false,
+          "antiCrawler": false,
+          "supportBT": false,
+          "supportPodcast": false,
+          "supportScihub": false,
+          "nsfw": true
+        },
+        "name": "Rankings",
+        "maintainers": [
+          "EYHN"
+        ],
+        "location": "ranking.ts",
+        "module": () => import('@/routes/pixiv/ranking.ts')
+      },
+      "/search/:keyword/:order?/:mode?/:include_ai?": {
+        "path": "/search/:keyword/:order?/:mode?/:include_ai?",
+        "categories": [
+          "social-media"
+        ],
+        "view": 2,
+        "example": "/pixiv/search/Nezuko/popular",
+        "parameters": {
+          "keyword": "keyword",
+          "order": {
+            "description": "rank mode, empty or other for time order, popular for popular order",
+            "default": "date",
+            "options": [
+              {
+                "label": "time order",
+                "value": "date"
+              },
+              {
+                "label": "popular order",
+                "value": "popular"
+              }
+            ]
+          },
+          "mode": {
+            "description": "filte R18 content",
+            "default": "no",
+            "options": [
+              {
+                "label": "only not R18",
+                "value": "safe"
+              },
+              {
+                "label": "only R18",
+                "value": "r18"
+              },
+              {
+                "label": "no filter",
+                "value": "no"
+              }
+            ]
+          },
+          "include_ai": {
+            "description": "whether AI-generated content is included",
+            "default": "yes",
+            "options": [
+              {
+                "label": "does not include AI-generated content",
+                "value": "no"
+              },
+              {
+                "label": "include AI-generated content",
+                "value": "yes"
+              }
+            ]
+          }
+        },
+        "features": {
+          "requireConfig": false,
+          "requirePuppeteer": false,
+          "antiCrawler": false,
+          "supportBT": false,
+          "supportPodcast": false,
+          "supportScihub": false,
+          "nsfw": true
+        },
+        "name": "Keyword",
+        "maintainers": [
+          "DIYgod"
+        ],
+        "location": "search.ts",
+        "module": () => import('@/routes/pixiv/search.ts')
+      },
+      "/user/:id": {
+        "path": "/user/:id",
+        "categories": [
+          "social-media"
+        ],
+        "view": 2,
+        "example": "/pixiv/user/15288095",
+        "parameters": {
+          "id": "user id, available in user's homepage URL"
+        },
+        "features": {
+          "requireConfig": false,
+          "requirePuppeteer": false,
+          "antiCrawler": false,
+          "supportBT": false,
+          "supportPodcast": false,
+          "supportScihub": false,
+          "nsfw": true
+        },
+        "radar": [
+          {
+            "source": [
+              "www.pixiv.net/users/:id",
+              "www.pixiv.net/en/users/:id"
+            ]
+          }
+        ],
+        "name": "User Activity",
+        "maintainers": [
+          "DIYgod"
+        ],
+        "location": "user.ts",
+        "module": () => import('@/routes/pixiv/user.ts')
+      },
+      "/novel/series/:id": {
+        "path": "/novel/series/:id",
+        "categories": [
+          "social-media"
+        ],
+        "example": "/pixiv/novel/series/11586857",
+        "parameters": {
+          "id": "Series id, can be found in URL"
+        },
+        "features": {
+          "requireConfig": [
+            {
+              "name": "PIXIV_REFRESHTOKEN",
+              "optional": true,
+              "description": "\nrefresh_token after Pixiv login, required for accessing R18 novels\nPixiv 登錄後的 refresh_token，用於獲取 R18 小說\n[https://docs.rsshub.app/deploy/config#pixiv](https://docs.rsshub.app/deploy/config#pixiv)"
+            }
+          ],
+          "requirePuppeteer": false,
+          "antiCrawler": false,
+          "supportBT": false,
+          "supportPodcast": false,
+          "supportScihub": false,
+          "nsfw": true
+        },
+        "name": "Novel Series",
+        "maintainers": [
+          "SnowAgar25",
+          "keocheung"
+        ],
+        "radar": [
+          {
+            "source": [
+              "www.pixiv.net/novel/series/:id"
+            ],
+            "target": "/novel/series/:id"
+          }
+        ],
+        "location": "novel-series.ts",
+        "module": () => import('@/routes/pixiv/novel-series.ts')
+      },
+      "/user/novels/:id/:full_content?": {
+        "path": "/user/novels/:id/:full_content?",
+        "categories": [
+          "social-media"
+        ],
+        "view": 0,
+        "example": "/pixiv/user/novels/27104704",
+        "parameters": {
+          "id": "User id, available in user's homepage URL",
+          "full_content": {
+            "description": "Enable or disable the display of full content. ",
+            "options": [
+              {
+                "value": "true",
+                "label": "true"
+              },
+              {
+                "value": "false",
+                "label": "false"
+              }
+            ],
+            "default": "false"
+          }
+        },
+        "features": {
+          "requireConfig": [
+            {
+              "name": "PIXIV_REFRESHTOKEN",
+              "optional": true,
+              "description": "\nPixiv 登錄後的 refresh_token，用於獲取 R18 小說\nrefresh_token after Pixiv login, required for accessing R18 novels\n[https://docs.rsshub.app/deploy/config#pixiv](https://docs.rsshub.app/deploy/config#pixiv)"
+            }
+          ],
+          "requirePuppeteer": false,
+          "antiCrawler": false,
+          "supportBT": false,
+          "supportPodcast": false,
+          "supportScihub": false,
+          "nsfw": true
+        },
+        "radar": [
+          {
+            "title": "User Novels (簡介 Basic info)",
+            "source": [
+              "www.pixiv.net/users/:id/novels",
+              "www.pixiv.net/users/:id",
+              "www.pixiv.net/en/users/:id/novels",
+              "www.pixiv.net/en/users/:id"
+            ],
+            "target": "/user/novels/:id"
+          },
+          {
+            "title": "User Novels (全文 Full text)",
+            "source": [
+              "www.pixiv.net/users/:id/novels",
+              "www.pixiv.net/users/:id",
+              "www.pixiv.net/en/users/:id/novels",
+              "www.pixiv.net/en/users/:id"
+            ],
+            "target": "/user/novels/:id/true"
+          }
+        ],
+        "name": "User Novels",
+        "maintainers": [
+          "TonyRL",
+          "SnowAgar25"
+        ],
+        "description": "| 小說類型 Novel Type | full\\_content | PIXIV\\_REFRESHTOKEN | 返回內容 Content |\n| ------------------- | ------------- | ------------------- | ---------------- |\n| Non R18             | false         | 不需要 Not Required | 簡介 Basic info  |\n| Non R18             | true          | 不需要 Not Required | 全文 Full text   |\n| R18                 | false         | 需要 Required       | 簡介 Basic info  |\n| R18                 | true          | 需要 Required       | 全文 Full text   |\n\nDefault value for `full_content` is `false` if not specified.\n\nExample:\n\n- `/pixiv/user/novels/79603797` → 簡介 Basic info\n- `/pixiv/user/novels/79603797/true` → 全文 Full text",
+        "location": "novels.ts",
+        "module": () => import('@/routes/pixiv/novels.ts')
+      }
+    },
+    "apiRoutes": {},
+    "name": "pixiv",
+    "url": "www.pixiv.net",
+    "lang": "ja"
   },
   "ryo.lu": {
     "routes": {
@@ -159742,388 +162379,6 @@ export default {
     "name": "Google",
     "url": "www.google.com",
     "lang": "en"
-  },
-  "pixiv": {
-    "routes": {
-      "/user/bookmarks/:id": {
-        "path": "/user/bookmarks/:id",
-        "categories": [
-          "social-media"
-        ],
-        "example": "/pixiv/user/bookmarks/15288095",
-        "parameters": {
-          "id": "user id, available in user's homepage URL"
-        },
-        "features": {
-          "requireConfig": false,
-          "requirePuppeteer": false,
-          "antiCrawler": false,
-          "supportBT": false,
-          "supportPodcast": false,
-          "supportScihub": false,
-          "nsfw": true
-        },
-        "radar": [
-          {
-            "source": [
-              "www.pixiv.net/users/:id/bookmarks/artworks",
-              "www.pixiv.net/en/users/:id/bookmarks/artworks"
-            ]
-          }
-        ],
-        "name": "User Bookmark",
-        "maintainers": [
-          "EYHN"
-        ],
-        "location": "bookmarks.ts",
-        "module": () => import('@/routes/pixiv/bookmarks.ts')
-      },
-      "/user/illustfollows": {
-        "path": "/user/illustfollows",
-        "categories": [
-          "social-media"
-        ],
-        "example": "/pixiv/user/illustfollows",
-        "parameters": {},
-        "features": {
-          "requireConfig": [
-            {
-              "name": "PIXIV_REFRESHTOKEN",
-              "description": ""
-            }
-          ],
-          "requirePuppeteer": false,
-          "antiCrawler": false,
-          "supportBT": false,
-          "supportPodcast": false,
-          "supportScihub": false,
-          "nsfw": true
-        },
-        "radar": [
-          {
-            "source": [
-              "www.pixiv.net/bookmark_new_illust.php"
-            ]
-          }
-        ],
-        "name": "Following timeline",
-        "maintainers": [
-          "ClarkeCheng"
-        ],
-        "url": "www.pixiv.net/bookmark_new_illust.php",
-        "description": "::: warning\nOnly for self-hosted\n:::",
-        "location": "illustfollow.ts",
-        "module": () => import('@/routes/pixiv/illustfollow.ts')
-      },
-      "/ranking/:mode/:date?": {
-        "path": "/ranking/:mode/:date?",
-        "categories": [
-          "social-media"
-        ],
-        "view": 2,
-        "example": "/pixiv/ranking/week",
-        "parameters": {
-          "mode": {
-            "description": "rank type",
-            "options": [
-              {
-                "value": "day",
-                "label": "daily rank"
-              },
-              {
-                "value": "week",
-                "label": "weekly rank"
-              },
-              {
-                "value": "month",
-                "label": "monthly rank"
-              },
-              {
-                "value": "day_male",
-                "label": "male rank"
-              },
-              {
-                "value": "day_felame",
-                "label": "female rank"
-              },
-              {
-                "value": "day_ai",
-                "label": "AI-generated work Rankings"
-              },
-              {
-                "value": "week_original",
-                "label": "original rank"
-              },
-              {
-                "value": "week_rookie",
-                "label": "rookie user rank"
-              },
-              {
-                "value": "day_r18",
-                "label": "R-18 daily rank"
-              },
-              {
-                "value": "day_r18_ai",
-                "label": "R-18 AI-generated work"
-              },
-              {
-                "value": "day_male_r18",
-                "label": "R-18 male rank"
-              },
-              {
-                "value": "day_female_r18",
-                "label": "R-18 female rank"
-              },
-              {
-                "value": "week_r18",
-                "label": "R-18 weekly rank"
-              },
-              {
-                "value": "week_r18g",
-                "label": "R-18G rank"
-              }
-            ],
-            "default": "day"
-          },
-          "date": "format: `2018-4-25`"
-        },
-        "features": {
-          "requireConfig": false,
-          "requirePuppeteer": false,
-          "antiCrawler": false,
-          "supportBT": false,
-          "supportPodcast": false,
-          "supportScihub": false,
-          "nsfw": true
-        },
-        "name": "Rankings",
-        "maintainers": [
-          "EYHN"
-        ],
-        "location": "ranking.ts",
-        "module": () => import('@/routes/pixiv/ranking.ts')
-      },
-      "/search/:keyword/:order?/:mode?/:include_ai?": {
-        "path": "/search/:keyword/:order?/:mode?/:include_ai?",
-        "categories": [
-          "social-media"
-        ],
-        "view": 2,
-        "example": "/pixiv/search/Nezuko/popular",
-        "parameters": {
-          "keyword": "keyword",
-          "order": {
-            "description": "rank mode, empty or other for time order, popular for popular order",
-            "default": "date",
-            "options": [
-              {
-                "label": "time order",
-                "value": "date"
-              },
-              {
-                "label": "popular order",
-                "value": "popular"
-              }
-            ]
-          },
-          "mode": {
-            "description": "filte R18 content",
-            "default": "no",
-            "options": [
-              {
-                "label": "only not R18",
-                "value": "safe"
-              },
-              {
-                "label": "only R18",
-                "value": "r18"
-              },
-              {
-                "label": "no filter",
-                "value": "no"
-              }
-            ]
-          },
-          "include_ai": {
-            "description": "whether AI-generated content is included",
-            "default": "yes",
-            "options": [
-              {
-                "label": "does not include AI-generated content",
-                "value": "no"
-              },
-              {
-                "label": "include AI-generated content",
-                "value": "yes"
-              }
-            ]
-          }
-        },
-        "features": {
-          "requireConfig": false,
-          "requirePuppeteer": false,
-          "antiCrawler": false,
-          "supportBT": false,
-          "supportPodcast": false,
-          "supportScihub": false,
-          "nsfw": true
-        },
-        "name": "Keyword",
-        "maintainers": [
-          "DIYgod"
-        ],
-        "location": "search.ts",
-        "module": () => import('@/routes/pixiv/search.ts')
-      },
-      "/user/:id": {
-        "path": "/user/:id",
-        "categories": [
-          "social-media"
-        ],
-        "view": 2,
-        "example": "/pixiv/user/15288095",
-        "parameters": {
-          "id": "user id, available in user's homepage URL"
-        },
-        "features": {
-          "requireConfig": false,
-          "requirePuppeteer": false,
-          "antiCrawler": false,
-          "supportBT": false,
-          "supportPodcast": false,
-          "supportScihub": false,
-          "nsfw": true
-        },
-        "radar": [
-          {
-            "source": [
-              "www.pixiv.net/users/:id",
-              "www.pixiv.net/en/users/:id"
-            ]
-          }
-        ],
-        "name": "User Activity",
-        "maintainers": [
-          "DIYgod"
-        ],
-        "location": "user.ts",
-        "module": () => import('@/routes/pixiv/user.ts')
-      },
-      "/novel/series/:id": {
-        "path": "/novel/series/:id",
-        "categories": [
-          "social-media"
-        ],
-        "example": "/pixiv/novel/series/11586857",
-        "parameters": {
-          "id": "Series id, can be found in URL"
-        },
-        "features": {
-          "requireConfig": [
-            {
-              "name": "PIXIV_REFRESHTOKEN",
-              "optional": true,
-              "description": "\nrefresh_token after Pixiv login, required for accessing R18 novels\nPixiv 登錄後的 refresh_token，用於獲取 R18 小說\n[https://docs.rsshub.app/deploy/config#pixiv](https://docs.rsshub.app/deploy/config#pixiv)"
-            }
-          ],
-          "requirePuppeteer": false,
-          "antiCrawler": false,
-          "supportBT": false,
-          "supportPodcast": false,
-          "supportScihub": false,
-          "nsfw": true
-        },
-        "name": "Novel Series",
-        "maintainers": [
-          "SnowAgar25",
-          "keocheung"
-        ],
-        "radar": [
-          {
-            "source": [
-              "www.pixiv.net/novel/series/:id"
-            ],
-            "target": "/novel/series/:id"
-          }
-        ],
-        "location": "novel-series.ts",
-        "module": () => import('@/routes/pixiv/novel-series.ts')
-      },
-      "/user/novels/:id/:full_content?": {
-        "path": "/user/novels/:id/:full_content?",
-        "categories": [
-          "social-media"
-        ],
-        "view": 0,
-        "example": "/pixiv/user/novels/27104704",
-        "parameters": {
-          "id": "User id, available in user's homepage URL",
-          "full_content": {
-            "description": "Enable or disable the display of full content. ",
-            "options": [
-              {
-                "value": "true",
-                "label": "true"
-              },
-              {
-                "value": "false",
-                "label": "false"
-              }
-            ],
-            "default": "false"
-          }
-        },
-        "features": {
-          "requireConfig": [
-            {
-              "name": "PIXIV_REFRESHTOKEN",
-              "optional": true,
-              "description": "\nPixiv 登錄後的 refresh_token，用於獲取 R18 小說\nrefresh_token after Pixiv login, required for accessing R18 novels\n[https://docs.rsshub.app/deploy/config#pixiv](https://docs.rsshub.app/deploy/config#pixiv)"
-            }
-          ],
-          "requirePuppeteer": false,
-          "antiCrawler": false,
-          "supportBT": false,
-          "supportPodcast": false,
-          "supportScihub": false,
-          "nsfw": true
-        },
-        "radar": [
-          {
-            "title": "User Novels (簡介 Basic info)",
-            "source": [
-              "www.pixiv.net/users/:id/novels",
-              "www.pixiv.net/users/:id",
-              "www.pixiv.net/en/users/:id/novels",
-              "www.pixiv.net/en/users/:id"
-            ],
-            "target": "/user/novels/:id"
-          },
-          {
-            "title": "User Novels (全文 Full text)",
-            "source": [
-              "www.pixiv.net/users/:id/novels",
-              "www.pixiv.net/users/:id",
-              "www.pixiv.net/en/users/:id/novels",
-              "www.pixiv.net/en/users/:id"
-            ],
-            "target": "/user/novels/:id/true"
-          }
-        ],
-        "name": "User Novels",
-        "maintainers": [
-          "TonyRL",
-          "SnowAgar25"
-        ],
-        "description": "| 小說類型 Novel Type | full\\_content | PIXIV\\_REFRESHTOKEN | 返回內容 Content |\n| ------------------- | ------------- | ------------------- | ---------------- |\n| Non R18             | false         | 不需要 Not Required | 簡介 Basic info  |\n| Non R18             | true          | 不需要 Not Required | 全文 Full text   |\n| R18                 | false         | 需要 Required       | 簡介 Basic info  |\n| R18                 | true          | 需要 Required       | 全文 Full text   |\n\nDefault value for `full_content` is `false` if not specified.\n\nExample:\n\n- `/pixiv/user/novels/79603797` → 簡介 Basic info\n- `/pixiv/user/novels/79603797/true` → 全文 Full text",
-        "location": "novels.ts",
-        "module": () => import('@/routes/pixiv/novels.ts')
-      }
-    },
-    "apiRoutes": {},
-    "name": "pixiv",
-    "url": "www.pixiv.net",
-    "lang": "ja"
   },
   "youtube": {
     "routes": {
