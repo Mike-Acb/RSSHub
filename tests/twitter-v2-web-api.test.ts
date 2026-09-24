@@ -88,6 +88,14 @@ test('retries a transiently failed detail lookup on the next feed request', asyn
     expect(fixtures.calls.filter((endpoint) => endpoint === 'TweetDetail')).toHaveLength(2);
 });
 
+test('shares the base replies cache without persisting detailed parents into it', async () => {
+    const expanded = await api.getUserTweetsAndReplies('writer', { detail: true });
+    const base = await api.getUserTweetsAndReplies('writer');
+    expect(expanded[0].conversation_context.map((post) => post.id_str)).toEqual(['100', '200']);
+    expect(base[0].conversation_context).toBeUndefined();
+    expect(fixtures.calls).toEqual(['UserRepliesTimeline', 'TweetDetail']);
+});
+
 test('resolves the dedicated replies operation with its fallback ID', () => {
     expect(buildGqlMap(fallbackIds).UserRepliesTimeline).toMatch(/^\/graphql\/.+\/UserRepliesTimeline$/);
 });

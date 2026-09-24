@@ -1,11 +1,10 @@
-import { config } from '@/config';
-import InvalidParameterError from '@/errors/types/invalid-parameter';
 import type { Route } from '@/types';
 import { ViewType } from '@/types';
 import logger from '@/utils/logger';
 
 import api from './api';
 import utils from './utils';
+import { getUserTimeline, parseUserFeedDetail } from './v2/user-feed';
 
 export const route: Route = {
     path: '/user/:id/:routeParams?',
@@ -70,23 +69,15 @@ async function handler(ctx) {
     const id = ctx.req.param('id');
 
     // For compatibility
-    const { count, include_replies, include_rts, detail } = utils.parseRouteParams(ctx.req.param('routeParams'));
-    if (include_replies && detail && !config.twitter.authToken && !config.twitter.thirdPartyApi) {
-        throw new InvalidParameterError('detail requires Twitter Web API or a third-party GraphQL API');
-    }
+    const { count, include_replies, include_rts } = utils.parseRouteParams(ctx.req.param('routeParams'));
+    const detail = parseUserFeedDetail(ctx.req.param('routeParams'), include_replies);
     const params = count ? { count } : {};
 
     await api.init();
     const userInfo = await api.getUser(id);
     let data;
     try {
-        if (include_replies) {
-            const replies = await api.getUserTweetsAndReplies(id, { ...params, detail });
-            const tweets = await api.getUserTweets(id, params);
-            data = utils.mergeUserTimelines(replies, tweets);
-        } else {
-            data = await api.getUserTweets(id, params);
-        }
+        data = await getUserTimeline(api, id, params, include_replies, detail);
         if (!include_rts) {
             data = utils.excludeRetweet(data);
         }

@@ -32,3 +32,18 @@ test('rejects conversation detail without a GraphQL-capable API', async () => {
         config.twitter.thirdPartyApi = thirdPartyApi;
     }
 });
+
+test('ignores detail for a user timeline without replies or GraphQL authentication', async () => {
+    const authToken = config.twitter.authToken;
+    const thirdPartyApi = config.twitter.thirdPartyApi;
+    try {
+        config.twitter.authToken = undefined;
+        config.twitter.thirdPartyApi = undefined;
+        const ctx = { req: { param: (key: string) => (key === 'id' ? 'writer' : 'detail=1') } } as unknown as Parameters<typeof route.handler>[0];
+        const feed = await route.handler(ctx);
+        expect(feed).toMatchObject({ item: [{ title: '300' }, { title: '100' }] });
+    } finally {
+        config.twitter.authToken = authToken;
+        config.twitter.thirdPartyApi = thirdPartyApi;
+    }
+});

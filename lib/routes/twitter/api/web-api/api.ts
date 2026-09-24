@@ -1,11 +1,10 @@
-import pMap from 'p-map';
-
 import { config } from '@/config';
 import InvalidParameterError from '@/errors/types/invalid-parameter';
 import cache from '@/utils/cache';
 import ofetch from '@/utils/ofetch';
 
 import { getTwitterUserCacheKey } from '../../utils';
+import { getUserTweetsAndReplies as getV2UserTweetsAndReplies } from '../../v2/web-api';
 import { baseUrl, gqlFeatures, gqlMap, initGqlMap } from './constants';
 import type { ApiParams } from './utils';
 import { gatherLegacyFromData, paginationTweets, twitterGot } from './utils';
@@ -80,7 +79,7 @@ const getUserData = async (id: string) => {
 
 const cacheTryGet = async <T>(_id: string, params: ApiParams | undefined, operationName: string, func: (id: string, params: ApiParams) => Promise<T>): Promise<T> => {
     const user = await getUserData(_id);
-    return (await cache.tryGet(getTwitterUserCacheKey(user.rest_id, operationName, params), () => func(user.rest_id, params ?? {}), config.cache.routeExpire, false)) as T;
+    return cache.tryGet(getTwitterUserCacheKey(user.rest_id, operationName, params), () => func(user.rest_id, params ?? {}), config.cache.routeExpire, false);
 };
 
 const getUserTweets = (id: string, params?: ApiParams) =>
@@ -97,53 +96,7 @@ const getUserTweets = (id: string, params?: ApiParams) =>
         )
     );
 
-const getUserTweetsAndReplies = async (id: string, params?: ApiParams) => {
-    const { detail, ...variables } = params ?? {};
-    const replies = await cacheTryGet(id, variables, 'getUserTweetsAndReplies', async (userId, variables = {}) =>
-        gatherLegacyFromData(
-            await paginationTweets('UserRepliesTimeline', userId, {
-                ...variables,
-                count: 20,
-                includePromotedContent: true,
-                withCommunity: true,
-                withVoice: true,
-                withV2Timeline: true,
-            }),
-            ['profile-conversation-'],
-            userId
-        )
-    );
-    if (!detail) {
-        return replies;
-    }
-
-    return pMap(
-        replies,
-        async (reply) => {
-            if (!reply.in_reply_to_status_id_str) {
-                return reply;
-            }
-            try {
-                const conversation = await getUserTweet(id, { focalTweetId: reply.id_str });
-                const byId = new Map(conversation.map((tweet) => [tweet.id_str, tweet]));
-                const parents: Array<(typeof conversation)[number]> = [];
-                const seen = new Set([reply.id_str]);
-                let parentId = reply.in_reply_to_status_id_str;
-                while (parentId && !seen.has(parentId) && byId.has(parentId)) {
-                    seen.add(parentId);
-                    const parent = byId.get(parentId);
-                    parents.unshift(parent);
-                    parentId = parent.in_reply_to_status_id_str;
-                }
-                return parents.length ? { ...reply, conversation_context: parents } : reply;
-            } catch {
-                // A failed detail request must not drop the reply itself or cache an incomplete expansion.
-                return reply;
-            }
-        },
-        { concurrency: 1 }
-    );
-};
+const getUserTweetsAndReplies = (id: string, params?: ApiParams) => getV2UserTweetsAndReplies(id, params, cacheTryGet, getUserTweet);
 
 const getUserMedia = (id: string, params?: ApiParams) =>
     cacheTryGet(id, params, 'getUserMedia', async (id, params = {}) =>

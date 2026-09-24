@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest';
 
 import { gatherLegacyFromData } from '../lib/routes/twitter/api/web-api/utils';
 import twitterUtils from '../lib/routes/twitter/utils';
+import { mergeUserTimelines } from '../lib/routes/twitter/v2/user-feed';
 
 const makeTweet = (id: string, text = id) => ({
     id_str: id,
@@ -40,7 +41,7 @@ describe('Twitter user feed', () => {
             { ...makeTweet('200'), quoted_status: [makeTweet('50')] },
             { ...makeTweet('100', 'detailed reply'), quoted_status: [makeTweet('20')] },
         ];
-        const result = twitterUtils.mergeUserTimelines(replies, main);
+        const result = mergeUserTimelines(replies, main);
         expect(result.map((tweet) => tweet.id_str)).toEqual(['300', '200', '100']);
         expect(result[2]).toMatchObject({ quoted_status: [makeTweet('20')] });
     });
@@ -57,6 +58,17 @@ describe('Twitter user feed', () => {
         const [item] = twitterUtils.ProcessFeed(context, { data: [reply] });
         expect(item.description).toContain('parent');
         expect(item._extra).toEqual({ links: [{ type: 'reply', url: 'https://x.com/parent/status/200' }] });
+    });
+    test('preserves a singular quote link and ignores unavailable entries before a valid quoted post', () => {
+        const quote = makeTweet('200', 'quoted text');
+        const singular = twitterUtils.ProcessFeed(context, { data: [{ ...makeTweet('300', 'original'), is_quote_status: true, quoted_status: quote }] })[0];
+        expect(singular.description).toContain('quoted text');
+        expect(singular._extra).toEqual({ links: [{ type: 'quote', url: 'https://x.com/writer/status/200' }] });
+
+        const multiple = twitterUtils.ProcessFeed(context, { data: [{ ...makeTweet('301', 'reply'), is_quote_status: true, quoted_status: [{ id_str: 'missing' }, quote] }] })[0];
+        expect(multiple.description).toContain('quoted text');
+        expect(multiple.description).not.toContain('undefined');
+        expect(multiple._extra).toEqual({ links: [{ type: 'quote', url: 'https://x.com/writer/status/200' }] });
     });
 
     test('hydrates new-style authors and ignores unavailable quoted tweet tombstones', () => {
