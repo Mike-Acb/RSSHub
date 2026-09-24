@@ -243,7 +243,7 @@ export const twitterGot = async (
     return responseData;
 };
 
-export const paginationTweets = async (endpoint: string, userId: number | undefined, variables: ApiParams, path?: string[]) => {
+export const paginationTweets = async (endpoint: string, userId: string | number | undefined, variables: ApiParams, path?: string[]) => {
     const params = {
         variables: JSON.stringify({ ...variables, userId }),
         features: JSON.stringify(gqlFeatures[endpoint]),
@@ -296,15 +296,15 @@ export const paginationTweets = async (endpoint: string, userId: number | undefi
 };
 
 const hydrateLegacyUser = (legacy: any, tweet: any) => {
-    const userResult = tweet.core?.user_results?.result;
+    const userResult = tweet.core?.user_result?.result ?? tweet.core?.user_results?.result;
     if (!userResult) {
         return;
     }
 
     legacy.user = {
-        name: userResult.core?.name,
-        screen_name: userResult.core?.screen_name,
-        profile_image_url_https: userResult.avatar?.image_url,
+        name: userResult.core?.name ?? userResult.legacy?.name,
+        screen_name: userResult.core?.screen_name ?? userResult.legacy?.screen_name,
+        profile_image_url_https: userResult.avatar?.image_url ?? userResult.legacy?.profile_image_url_https,
     };
 };
 
@@ -334,7 +334,7 @@ export function gatherLegacyFromData(entries: any[], filterNested?: string[], us
         if (tweet?.__typename === 'TweetPreviewDisplay') {
             const preview = tweet.tweet;
             if (preview?.rest_id) {
-                const userResult = preview.core?.user_results?.result;
+                const userResult = preview.core?.user_result?.result ?? preview.core?.user_results?.result;
                 const fakeLegacy: any = {
                     id_str: preview.rest_id,
                     full_text: `[Subscribers Only] ${preview.text ?? ''}`,
@@ -346,7 +346,7 @@ export function gatherLegacyFromData(entries: any[], filterNested?: string[], us
                     retweet_count: preview.retweet_count ?? 0,
                 };
                 hydrateLegacyUser(fakeLegacy, { core: preview.core, rest_id: preview.rest_id });
-                if (userId === undefined || fakeLegacy.user_id_str === userId + '') {
+                if ((userId === undefined || fakeLegacy.user_id_str === userId + '') && fakeLegacy.user?.name && fakeLegacy.user?.screen_name) {
                     tweets.push(fakeLegacy);
                 }
             }
@@ -387,7 +387,7 @@ export function gatherLegacyFromData(entries: any[], filterNested?: string[], us
         if (retweet) {
             legacy.retweeted_status = retweet.legacy;
         }
-        if (userId === undefined || legacy.user_id_str === userId + '') {
+        if ((userId === undefined || legacy.user_id_str === userId + '') && legacy.user?.name && legacy.user.screen_name && (!retweet?.legacy || (retweet.legacy.user?.name && retweet.legacy.user.screen_name))) {
             tweets.push(legacy);
         }
     }

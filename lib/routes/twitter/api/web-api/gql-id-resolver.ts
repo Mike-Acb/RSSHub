@@ -12,6 +12,7 @@ export const fallbackIds = {
     HomeTimeline: '3b9_7tltt0hJRef-xm_3sw',
     HomeLatestTimeline: 'm1G65W9TS1-g-AllrKKYDQ',
     UserTweetsAndReplies: 'wc5DRl4VaW5lSqJ8YbftZQ',
+    UserRepliesTimeline: '2anL22XLKS0gNMtm1tSAcQ',
     UserMedia: '2DC9TKrcUzwGC_QskSVl5w',
     UserByRestId: 'xvmVfRLmnr1alc5f2dib0Q',
     SearchTimeline: 'BGd0T_j7oVwlW5U79tO_0A',

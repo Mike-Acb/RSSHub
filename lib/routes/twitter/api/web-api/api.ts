@@ -1,3 +1,5 @@
+import pMap from 'p-map';
+
 import { config } from '@/config';
 import InvalidParameterError from '@/errors/types/invalid-parameter';
 import cache from '@/utils/cache';
@@ -24,7 +26,7 @@ const getUserResult = (response: any) => {
         throw new Error(`Twitter API user lookup failed (code: ${code})`);
     }
 
-    const user = response?.data?.user;
+    const user = response?.data?.user === undefined ? response?.data?.user_result : response.data.user;
     if (user === null || user?.result === null) {
         throw new InvalidParameterError("This account doesn't exist");
     }
@@ -76,9 +78,9 @@ const getUserData = async (id: string) => {
     return getUserResult(data);
 };
 
-const cacheTryGet = async (_id, params, operationName, func) => {
+const cacheTryGet = async <T>(_id: string, params: ApiParams | undefined, operationName: string, func: (id: string, params: ApiParams) => Promise<T>): Promise<T> => {
     const user = await getUserData(_id);
-    return cache.tryGet(getTwitterUserCacheKey(user.rest_id, operationName, params), () => func(user.rest_id, params), config.cache.routeExpire, false);
+    return (await cache.tryGet(getTwitterUserCacheKey(user.rest_id, operationName, params), () => func(user.rest_id, params ?? {}), config.cache.routeExpire, false)) as T;
 };
 
 const getUserTweets = (id: string, params?: ApiParams) =>
@@ -95,11 +97,12 @@ const getUserTweets = (id: string, params?: ApiParams) =>
         )
     );
 
-const getUserTweetsAndReplies = (id: string, params?: ApiParams) =>
-    cacheTryGet(id, params, 'getUserTweetsAndReplies', async (id, params = {}) =>
+const getUserTweetsAndReplies = async (id: string, params?: ApiParams) => {
+    const { detail, ...variables } = params ?? {};
+    const replies = await cacheTryGet(id, variables, 'getUserTweetsAndReplies', async (userId, variables = {}) =>
         gatherLegacyFromData(
-            await paginationTweets('UserTweetsAndReplies', id, {
-                ...params,
+            await paginationTweets('UserRepliesTimeline', userId, {
+                ...variables,
                 count: 20,
                 includePromotedContent: true,
                 withCommunity: true,
@@ -107,9 +110,40 @@ const getUserTweetsAndReplies = (id: string, params?: ApiParams) =>
                 withV2Timeline: true,
             }),
             ['profile-conversation-'],
-            id
+            userId
         )
     );
+    if (!detail) {
+        return replies;
+    }
+
+    return pMap(
+        replies,
+        async (reply) => {
+            if (!reply.in_reply_to_status_id_str) {
+                return reply;
+            }
+            try {
+                const conversation = await getUserTweet(id, { focalTweetId: reply.id_str });
+                const byId = new Map(conversation.map((tweet) => [tweet.id_str, tweet]));
+                const parents: Array<(typeof conversation)[number]> = [];
+                const seen = new Set([reply.id_str]);
+                let parentId = reply.in_reply_to_status_id_str;
+                while (parentId && !seen.has(parentId) && byId.has(parentId)) {
+                    seen.add(parentId);
+                    const parent = byId.get(parentId);
+                    parents.unshift(parent);
+                    parentId = parent.in_reply_to_status_id_str;
+                }
+                return parents.length ? { ...reply, conversation_context: parents } : reply;
+            } catch {
+                // A failed detail request must not drop the reply itself or cache an incomplete expansion.
+                return reply;
+            }
+        },
+        { concurrency: 1 }
+    );
+};
 
 const getUserMedia = (id: string, params?: ApiParams) =>
     cacheTryGet(id, params, 'getUserMedia', async (id, params = {}) =>
@@ -194,9 +228,10 @@ const getList = async (id: string, params?: ApiParams) =>
 const getUser = async (id: string) => {
     const user = await getUserData(id);
     return {
-        profile_image_url: user.avatar?.image_url,
-        description: user.profile_bio?.description,
+        ...user.legacy,
         ...user.core,
+        profile_image_url: user.avatar?.image_url ?? user.legacy?.profile_image_url_https,
+        description: user.profile_bio?.description ?? user.legacy?.description,
     };
 };
 

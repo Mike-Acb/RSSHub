@@ -239,11 +239,14 @@ const ProcessFeed = (ctx, { data = [] }: { data?: any[] }, params: ProcessFeedPa
         let quote = '';
         let quoteInTitle = '';
 
+        const linkedQuote = Array.isArray(item.quoted_status) ? item.quoted_status.find((status) => status?.user) : item.quoted_status;
         // Make quote in description
-        if (item.is_quote_status) {
-            const quoteData = item.quoted_status;
-
-            if (quoteData?.user) {
+        if (item.is_quote_status || item.conversation_context?.length) {
+            const quotedStatuses = [...(item.conversation_context ?? []), ...(item.is_quote_status ? (Array.isArray(item.quoted_status) ? item.quoted_status : [item.quoted_status]) : [])];
+            for (const quoteData of quotedStatuses) {
+                if (!quoteData?.user) {
+                    continue;
+                }
                 quoteData.full_text ||= quoteData.text;
                 const author = quoteData.user;
                 if (!readable) {
@@ -451,10 +454,10 @@ const ProcessFeed = (ctx, { data = [] }: { data?: any[] }, params: ProcessFeedPa
                     ],
                 }) ||
                 (item.is_quote_status &&
-                    item.quoted_status?.user && {
+                    linkedQuote?.user && {
                         links: [
                             {
-                                url: `https://x.com/${item.quoted_status?.user?.screen_name}/status/${item.quoted_status?.id_str || item.quoted_status?.conversation_id_str}`,
+                                url: `https://x.com/${linkedQuote.user.screen_name}/status/${linkedQuote.id_str || linkedQuote.conversation_id_str}`,
                                 type: 'quote',
                             },
                         ],
@@ -473,7 +476,7 @@ const ProcessFeed = (ctx, { data = [] }: { data?: any[] }, params: ProcessFeedPa
 };
 
 const parseRouteParams = (routeParams) => {
-    let count, include_replies, include_rts, only_media;
+    let count, include_replies, include_rts, only_media, detail;
     let force_web_api = false;
     switch (routeParams) {
         case 'exclude_rts_replies':
@@ -502,9 +505,30 @@ const parseRouteParams = (routeParams) => {
             include_rts = fallback(undefined, queryToBoolean(parsed.get('includeRts')), true);
             force_web_api = fallback(undefined, queryToBoolean(parsed.get('forceWebApi')), false);
             only_media = fallback(undefined, queryToBoolean(parsed.get('onlyMedia')), false);
+            detail = fallback(undefined, queryToBoolean(parsed.get('detail')), false);
         }
     }
-    return { count, include_replies, include_rts, force_web_api, only_media };
+    return { count, include_replies, include_rts, force_web_api, only_media, detail };
+};
+
+export const mergeUserTimelines = <T extends { id_str?: string; conversation_id_str?: string; created_at: string }>(replies: T[], tweets: T[]): T[] => {
+    const merged = new Map<string, T>();
+    for (const tweet of tweets) {
+        const id = tweet.id_str || tweet.conversation_id_str;
+        if (id) {
+            merged.set(id, tweet);
+        }
+    }
+    for (const reply of replies) {
+        const id = reply.id_str || reply.conversation_id_str;
+        if (id) {
+            merged.set(id, reply);
+        }
+    }
+    return merged
+        .values()
+        .toArray()
+        .sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at));
 };
 
 export const excludeRetweet = function (tweets) {
@@ -530,4 +554,5 @@ export default {
     parseRouteParams,
     excludeRetweet,
     keepOnlyMedia,
+    mergeUserTimelines,
 };

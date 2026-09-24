@@ -1,3 +1,5 @@
+import { config } from '@/config';
+import InvalidParameterError from '@/errors/types/invalid-parameter';
 import type { Route } from '@/types';
 import { ViewType } from '@/types';
 import logger from '@/utils/logger';
@@ -68,14 +70,23 @@ async function handler(ctx) {
     const id = ctx.req.param('id');
 
     // For compatibility
-    const { count, include_replies, include_rts } = utils.parseRouteParams(ctx.req.param('routeParams'));
+    const { count, include_replies, include_rts, detail } = utils.parseRouteParams(ctx.req.param('routeParams'));
+    if (include_replies && detail && !config.twitter.authToken && !config.twitter.thirdPartyApi) {
+        throw new InvalidParameterError('detail requires Twitter Web API or a third-party GraphQL API');
+    }
     const params = count ? { count } : {};
 
     await api.init();
     const userInfo = await api.getUser(id);
     let data;
     try {
-        data = await (include_replies ? api.getUserTweetsAndReplies(id, params) : api.getUserTweets(id, params));
+        if (include_replies) {
+            const replies = await api.getUserTweetsAndReplies(id, { ...params, detail });
+            const tweets = await api.getUserTweets(id, params);
+            data = utils.mergeUserTimelines(replies, tweets);
+        } else {
+            data = await api.getUserTweets(id, params);
+        }
         if (!include_rts) {
             data = utils.excludeRetweet(data);
         }
@@ -88,7 +99,7 @@ async function handler(ctx) {
     return {
         title: `Twitter @${userInfo?.name}`,
         link: `https://x.com/${userInfo?.screen_name}`,
-        image: profileImageUrl.replace(/_normal.jpg$/, '.jpg'),
+        image: profileImageUrl?.replace(/_normal.jpg$/, '.jpg') ?? '',
         description: userInfo?.description,
         item:
             data &&
