@@ -4,8 +4,11 @@ import { fallback, queryToBoolean } from '@/utils/readable-social';
 
 import type api from '../api';
 
+// Feed URLs copied from rendered XML keep `&amp;` separators, and copies of a wrapped terminal line gain line breaks.
+export const parseRouteQuery = (routeParams: string | undefined) => new URLSearchParams(routeParams?.replaceAll(/&(?:amp;)+/g, '&').replaceAll(/\s/g, ''));
+
 export const parseUserFeedDetail = (routeParams: string | undefined, includeReplies: boolean) => {
-    const detail = fallback(undefined, queryToBoolean(new URLSearchParams(routeParams).get('detail')), false);
+    const detail = fallback(undefined, queryToBoolean(parseRouteQuery(routeParams).get('detail')), false);
     if (includeReplies && detail && !config.twitter.authToken && !config.twitter.thirdPartyApi) {
         throw new InvalidParameterError('detail requires Twitter Web API or a third-party GraphQL API');
     }

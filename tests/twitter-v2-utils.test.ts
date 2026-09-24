@@ -69,6 +69,9 @@ describe('Twitter user feed', () => {
         expect(item.description.indexOf('可以出来了')).toBeLessThan(item.description.indexOf('older reply'));
         expect(item.description.indexOf('older reply')).toBeLessThan(item.description.indexOf('older root'));
     });
+    test('parses timeline options from a URL copied with HTML-escaped separators', () => {
+        expect(twitterUtils.parseRouteParams('count=5&amp;includeReplies=1&amp;amp;includeRts=0&onlyMedia=1')).toMatchObject({ count: 5, include_replies: true, include_rts: false, only_media: true });
+    });
     test('preserves a singular quote link and ignores unavailable entries before a valid quoted post', () => {
         const quote = makeTweet('200', 'quoted text');
         const singular = twitterUtils.ProcessFeed(context, { data: [{ ...makeTweet('300', 'original'), is_quote_status: true, quoted_status: quote }] })[0];

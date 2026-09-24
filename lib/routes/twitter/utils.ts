@@ -1,7 +1,7 @@
 import { parseDate } from '@/utils/parse-date';
 import { fallback, queryToBoolean, queryToInteger } from '@/utils/readable-social';
 
-import { selectQuotedStatuses } from './v2/user-feed';
+import { parseRouteQuery, selectQuotedStatuses } from './v2/user-feed';
 
 const getQueryParams = (url) => Object.fromEntries(new URL(url).searchParams.entries());
 const getOriginalImg = (url) => {
@@ -67,7 +67,7 @@ interface ProcessFeedParams {
 
 const ProcessFeed = (ctx, { data = [] }: { data?: any[] }, params: ProcessFeedParams = {}) => {
     // undefined and strings like "exclude_rts_replies" is also safely parsed, so no if branch is needed
-    const routeParams = new URLSearchParams(ctx.req.param('routeParams'));
+    const routeParams = parseRouteQuery(ctx.req.param('routeParams'));
 
     const mergedParams = {
         readable: fallback(params.readable, queryToBoolean(routeParams.get('readable')), false),
@@ -500,7 +500,7 @@ const parseRouteParams = (routeParams) => {
             break;
 
         default: {
-            const parsed = new URLSearchParams(routeParams);
+            const parsed = parseRouteQuery(routeParams);
             count = fallback(undefined, queryToInteger(parsed.get('count')), undefined);
             include_replies = fallback(undefined, queryToBoolean(parsed.get('includeReplies')), false);
             include_rts = fallback(undefined, queryToBoolean(parsed.get('includeRts')), true);
