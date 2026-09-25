@@ -69,6 +69,26 @@ describe('Twitter user feed', () => {
         expect(item.description.indexOf('可以出来了')).toBeLessThan(item.description.indexOf('older reply'));
         expect(item.description.indexOf('older reply')).toBeLessThan(item.description.indexOf('older root'));
     });
+    test('renders reply parents as a compact thread while quoted posts keep the quote layout', () => {
+        const readableContext = { req: { param: () => 'readable=1&authorNameBold=1&showQuotedAuthorAvatarInDesc=1&showTimestampInDescription=1' } };
+        const reply = {
+            ...makeTweet('400', 'reply'),
+            in_reply_to_screen_name: 'writer',
+            in_reply_to_status_id_str: '300',
+            conversation_context: [makeTweet('100', 'older root'), makeTweet('300', 'direct parent')],
+        };
+        const [thread] = twitterUtils.ProcessFeed(readableContext, { data: [reply] });
+        expect(thread.description).toMatch(
+            /<small><a href='https:\/\/x\.com\/writer' [^>]*><strong>Writer<\/strong><\/a> · <a href='https:\/\/x\.com\/writer\/status\/300' [^>]*>\d{4}-\d{2}-\d{2} \d{2}:\d{2}<\/a><\/small><br>direct parent/
+        );
+        expect(thread.description.indexOf('direct parent')).toBeLessThan(thread.description.indexOf('older root'));
+        expect(thread.description).not.toContain('Link:');
+        expect(thread.description).not.toContain("width='24'");
+
+        const [quote] = twitterUtils.ProcessFeed(readableContext, { data: [{ ...makeTweet('500', 'comment'), is_quote_status: true, quoted_status: makeTweet('450', 'quoted post') }] });
+        expect(quote.description).toContain("width='24'");
+        expect(quote.description).toContain('Link: <a');
+    });
     test('parses timeline options from a URL copied with HTML-escaped separators', () => {
         expect(twitterUtils.parseRouteParams('count=5&amp;includeReplies=1&amp;amp;includeRts=0&onlyMedia=1')).toMatchObject({ count: 5, include_replies: true, include_rts: false, only_media: true });
     });

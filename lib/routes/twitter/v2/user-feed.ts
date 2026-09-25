@@ -53,19 +53,26 @@ interface QuotedStatus {
     created_at: string;
 }
 
-interface QuotedSelection {
-    statuses: QuotedStatus[];
-    linkedQuote?: QuotedStatus;
+interface AuthoredStatus extends QuotedStatus {
+    user: NonNullable<QuotedStatus['user']>;
 }
 
-const noQuotes: QuotedSelection = { statuses: [] };
+interface QuotedSelection {
+    statuses: AuthoredStatus[];
+    context: AuthoredStatus[];
+    linkedQuote?: AuthoredStatus;
+}
 
+const noQuotes: QuotedSelection = { statuses: [], context: [] };
+
+const isAuthored = (status?: QuotedStatus): status is AuthoredStatus => Boolean(status?.user?.name && status.user.screen_name);
+
+// Quoted posts keep the upstream quote layout; reply parents are returned separately, nearest parent first.
 export const selectQuotedStatuses = (item: { is_quote_status?: boolean; quoted_status?: QuotedStatus | QuotedStatus[]; conversation_context?: QuotedStatus[] }): QuotedSelection => {
     if (!item.is_quote_status && !item.conversation_context?.length) {
         return noQuotes;
     }
-    const quoted: QuotedStatus[] = !item.is_quote_status || !item.quoted_status ? [] : Array.isArray(item.quoted_status) ? item.quoted_status : [item.quoted_status];
-    const linkedQuote = quoted.find((status) => status?.user?.name && status.user.screen_name);
-    const statuses = [...(item.conversation_context?.toReversed() ?? []), ...quoted].filter((status) => status?.user?.name && status.user.screen_name);
-    return { statuses, linkedQuote };
+    const quoted: Array<QuotedStatus | undefined> = !item.is_quote_status || !item.quoted_status ? [] : Array.isArray(item.quoted_status) ? item.quoted_status : [item.quoted_status];
+    const statuses = quoted.filter((status): status is AuthoredStatus => isAuthored(status));
+    return { statuses, context: item.conversation_context?.toReversed().filter((status): status is AuthoredStatus => isAuthored(status)) ?? [], linkedQuote: statuses[0] };
 };

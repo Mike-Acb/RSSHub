@@ -1,6 +1,7 @@
 import { parseDate } from '@/utils/parse-date';
 import { fallback, queryToBoolean, queryToInteger } from '@/utils/readable-social';
 
+import { renderConversationContext } from './v2/conversation';
 import { parseRouteQuery, selectQuotedStatuses } from './v2/user-feed';
 
 const getQueryParams = (url) => Object.fromEntries(new URL(url).searchParams.entries());
@@ -241,7 +242,11 @@ const ProcessFeed = (ctx, { data = [] }: { data?: any[] }, params: ProcessFeedPa
         let quote = '';
         let quoteInTitle = '';
 
-        const { statuses: quotedStatuses, linkedQuote } = selectQuotedStatuses(item);
+        const { statuses: quotedStatuses, linkedQuote, context } = selectQuotedStatuses(item);
+        const conversation = renderConversationContext(context, mergedParams, { formatText, formatMedia, generatePicsPrefix, separator: quoteSeparator });
+        quote += conversation.html;
+        picsPrefix += conversation.picsPrefix;
+        quoteInTitle += conversation.title;
         // Make quote in description
         if (quotedStatuses.length) {
             for (const quoteData of quotedStatuses) {
