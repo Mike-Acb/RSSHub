@@ -18,6 +18,7 @@ import template from '@/middleware/template';
 import trace from '@/middleware/trace';
 import registry from '@/registry';
 import logger from '@/utils/logger';
+import translate from '@/v2/translate';
 
 process.on('uncaughtException', (e) => {
     logger.error('uncaughtException: ' + e);
@@ -43,6 +44,8 @@ app.use(debug);
 app.use(template);
 app.use(header);
 app.use(antiHotlink);
+// Registered before `parameter` so it translates the items left after filtering and limiting.
+app.use(translate);
 app.use(parameter);
 app.use(cache);
 
