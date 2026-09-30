@@ -98,6 +98,8 @@ type ConfigEnvKeys =
     | 'BUKENAVI_PASSWORD'
     | 'CAIXIN_COOKIE'
     | 'CIVITAI_COOKIE'
+    | 'COOMER_ASSETS_URL'
+    | 'COOMER_ROOT_URL'
     | 'DIANPING_COOKIE'
     | 'DIDA365_USERNAME'
     | 'DIDA365_PASSWORD'
@@ -141,6 +143,8 @@ type ConfigEnvKeys =
     | 'IWARA_PASSWORD'
     | 'JAVDB_SESSION'
     | 'JUMEILI_COOKIE'
+    | 'KEMONO_ASSETS_URL'
+    | 'KEMONO_ROOT_URL'
     | 'KEYLOL_COOKIE'
     | 'LASTFM_API_KEY'
     | 'LOCALS_SESSION'
@@ -242,7 +246,6 @@ type ConfigEnvKeys =
     | 'XIAOHONGSHU_PROXY'
     | 'XIMALAYA_TOKEN'
     | 'XSIJISHE_COOKIE'
-    | 'XSIJISHE_USER_AGENT'
     | 'XUEQIU_COOKIES'
     | 'YAMIBO_SALT'
     | 'YAMIBO_AUTH'
@@ -399,6 +402,10 @@ export type Config = {
     civitai: {
         cookie?: string;
     };
+    coomer: {
+        assetsUrl: string;
+        rootUrl: string;
+    };
     dianping: {
         cookie?: string;
     };
@@ -497,6 +504,10 @@ export type Config = {
     };
     jumeili: {
         cookie?: string;
+    };
+    kemono: {
+        assetsUrl: string;
+        rootUrl: string;
     };
     keylol: {
         cookie?: string;
@@ -706,7 +717,6 @@ export type Config = {
     };
     xsijishe: {
         cookie?: string;
-        userAgent?: string;
     };
     xueqiu: {
         cookies?: string;
@@ -751,6 +761,16 @@ const toBoolean = (value: string | undefined, defaultValue: boolean) => {
 };
 
 const toInt = (value: string | undefined, defaultValue?: number) => (value === undefined ? defaultValue : Number.parseInt(value));
+
+const getAssetsUrl = (rootUrl: string, assetsUrl?: string) => {
+    if (assetsUrl) {
+        return assetsUrl.replace(/\/+$/, '');
+    }
+
+    const url = new URL(rootUrl);
+    url.hostname = `img.${url.hostname}`;
+    return url.href.replace(/\/+$/, '');
+};
 
 const calculateValue = () => {
     const bilibili_cookies: Record<string, string | undefined> = {};
@@ -920,6 +940,10 @@ const calculateValue = () => {
         civitai: {
             cookie: envs.CIVITAI_COOKIE,
         },
+        coomer: {
+            assetsUrl: getAssetsUrl(envs.COOMER_ROOT_URL || 'https://coomer.st', envs.COOMER_ASSETS_URL),
+            rootUrl: (envs.COOMER_ROOT_URL || 'https://coomer.st').replace(/\/+$/, ''),
+        },
         dianping: {
             cookie: envs.DIANPING_COOKIE,
         },
@@ -1018,6 +1042,10 @@ const calculateValue = () => {
         },
         jumeili: {
             cookie: envs.JUMEILI_COOKIE,
+        },
+        kemono: {
+            assetsUrl: getAssetsUrl(envs.KEMONO_ROOT_URL || 'https://kemono.cr', envs.KEMONO_ASSETS_URL),
+            rootUrl: (envs.KEMONO_ROOT_URL || 'https://kemono.cr').replace(/\/+$/, ''),
         },
         keylol: {
             cookie: envs.KEYLOL_COOKIE,
@@ -1166,12 +1194,12 @@ const calculateValue = () => {
         telegram: {
             token: envs.TELEGRAM_TOKEN,
             session: envs.TELEGRAM_SESSION,
-            apiId: envs.TELEGRAM_API_ID,
+            apiId: toInt(envs.TELEGRAM_API_ID),
             apiHash: envs.TELEGRAM_API_HASH,
-            maxConcurrentDownloads: envs.TELEGRAM_MAX_CONCURRENT_DOWNLOADS,
+            maxConcurrentDownloads: toInt(envs.TELEGRAM_MAX_CONCURRENT_DOWNLOADS),
             proxy: {
                 host: envs.TELEGRAM_PROXY_HOST,
-                port: envs.TELEGRAM_PROXY_PORT,
+                port: toInt(envs.TELEGRAM_PROXY_PORT),
                 secret: envs.TELEGRAM_PROXY_SECRET,
             },
         },
@@ -1227,7 +1255,6 @@ const calculateValue = () => {
         },
         xsijishe: {
             cookie: envs.XSIJISHE_COOKIE,
-            user_agent: envs.XSIJISHE_USER_AGENT,
         },
         xueqiu: {
             cookies: envs.XUEQIU_COOKIES,

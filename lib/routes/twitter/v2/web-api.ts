@@ -12,7 +12,7 @@ export const getUserTweetsAndReplies = async (id: string, params: ApiParams | un
         gatherLegacyFromData(
             await paginationTweets('UserRepliesTimeline', userId, {
                 ...variables,
-                count: 20,
+                count: variables.count ?? 20,
                 includePromotedContent: true,
                 withCommunity: true,
                 withVoice: true,
