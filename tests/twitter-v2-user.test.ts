@@ -15,10 +15,8 @@ vi.mock('../lib/routes/twitter/api', () => ({
         init: () => {},
         getUser: () => ({ name: 'Writer', screen_name: 'writer', profile_image_url: 'https://example.com/avatar_normal.jpg' }),
         getUserTweets: () => [tweet('300'), tweet('100')],
-        getUserTweetsAndReplies: (_id: string, params: { detail?: boolean }) =>
-            params.detail
-                ? [{ ...tweet('200', 'reply'), in_reply_to_screen_name: 'friend', in_reply_to_status_id_str: '150', conversation_context: [tweet('50', 'thread root'), tweet('150', 'direct parent')] }]
-                : [tweet('200'), tweet('100')],
+        getUserTweetsAndReplies: () => [{ ...tweet('200', 'reply'), in_reply_to_screen_name: 'friend', in_reply_to_status_id_str: '150' }, tweet('100')],
+        getUserTweet: () => [tweet('50', 'thread root'), { ...tweet('150', 'direct parent'), in_reply_to_status_id_str: '50' }],
     },
 }));
 
@@ -52,12 +50,6 @@ test('ignores a line break copied into a feed option name', () =>
         expect(original.item[0].description).toContain("<img width='48' height='48' src='https://example.com/writer.png'");
         expect(await requestFeed(feedOptions.replace('showAuthorAvatarInDesc', 'showAuthor\nAvatarInDesc'))).toEqual(original);
     }));
-
-test('includeReplies merges main posts and replies without duplicate entries', async () => {
-    const ctx = { req: { param: (key: string) => (key === 'id' ? 'writer' : 'includeReplies=1') } } as unknown as Parameters<typeof route.handler>[0];
-    const feed = await route.handler(ctx);
-    expect(feed).toMatchObject({ item: [{ title: '300' }, { title: '200' }, { title: '100' }] });
-});
 
 test('rejects conversation detail without a GraphQL-capable API', async () => {
     const authToken = config.twitter.authToken;

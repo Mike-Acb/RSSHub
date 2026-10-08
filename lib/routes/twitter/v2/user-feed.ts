@@ -3,6 +3,7 @@ import InvalidParameterError from '@/errors/types/invalid-parameter';
 import { fallback, queryToBoolean } from '@/utils/readable-social';
 
 import type api from '../api';
+import { expandConversationContext } from './web-api';
 
 // Feed URLs copied from rendered XML keep `&amp;` separators, and copies of a wrapped terminal line gain line breaks.
 export const parseRouteQuery = (routeParams: string | undefined) => new URLSearchParams(routeParams?.replaceAll(/&(?:amp;)+/g, '&').replaceAll(/\s/g, ''));
@@ -15,7 +16,7 @@ export const parseUserFeedDetail = (routeParams: string | undefined, includeRepl
     return detail;
 };
 
-export const mergeUserTimelines = <T extends { id_str?: string; conversation_id_str?: string; created_at: string }>(replies: T[], tweets: T[]): T[] => {
+export const mergeUserTimelines = <T extends { id_str?: string; conversation_id_str?: string; created_at: string; retweeted_status?: { id_str?: string; conversation_id_str?: string } }>(replies: T[], tweets: T[]): T[] => {
     const merged = new Map<string, T>();
     for (const tweet of tweets) {
         const id = tweet.id_str || tweet.conversation_id_str;
@@ -32,16 +33,21 @@ export const mergeUserTimelines = <T extends { id_str?: string; conversation_id_
     return merged
         .values()
         .toArray()
+        .filter((tweet) => {
+            const originalId = tweet.retweeted_status?.id_str || tweet.retweeted_status?.conversation_id_str;
+            return !originalId || !merged.has(originalId);
+        })
         .sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at));
 };
 
-export const getUserTimeline = async (client: Pick<typeof api, 'getUserTweets' | 'getUserTweetsAndReplies'>, id: string, params: { count?: number }, includeReplies: boolean, detail: boolean) => {
+export const getUserTimeline = async (client: Pick<typeof api, 'getUserTweets' | 'getUserTweetsAndReplies' | 'getUserTweet'>, id: string, params: { count?: number }, includeReplies: boolean, detail: boolean) => {
     if (!includeReplies) {
         return await client.getUserTweets(id, params);
     }
-    const replies = await client.getUserTweetsAndReplies(id, { ...params, detail });
+    const replies = await client.getUserTweetsAndReplies(id, params);
     const tweets = await client.getUserTweets(id, params);
-    return mergeUserTimelines(replies, tweets);
+    const timeline = mergeUserTimelines(replies, tweets);
+    return detail ? expandConversationContext(timeline, id, client.getUserTweet) : timeline;
 };
 
 interface QuotedStatus {

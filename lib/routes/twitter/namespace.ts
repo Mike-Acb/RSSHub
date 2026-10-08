@@ -34,7 +34,7 @@ export const namespace: Namespace = {
 | \`showSymbolForSubscriberOnly\`     | Use "\\[Subscribers Only]" as prefix for subscriber-only posts                                                                        | \`0\`/\`1\`/\`true\`/\`false\` | \`true\`                                    |
 | \`showFullPrefixForSubscriberOnly\` | Use "🔒 \\[Subscribers Only]" as prefix for subscriber-only posts                                                                     | \`0\`/\`1\`/\`true\`/\`false\` | \`false\`                                   |
 
-For \`/twitter/user\`, set \`includeReplies=1&detail=1\` to include parent conversation posts for replies. \`detail\` requires Twitter Web API or a third-party GraphQL API; it has no effect without \`includeReplies\`.
+For \`/twitter/user\`, set \`includeReplies=1&detail=1\` to include parent conversation posts for replies, including reposted replies. When both an original post and its self-repost appear in the timeline, only the original is included. \`detail\` requires Twitter Web API or a third-party GraphQL API; it has no effect without \`includeReplies\`.
 
 Specify different option values than default values to improve readability. The URL
 

@@ -2,12 +2,16 @@ import { beforeEach, expect, test, vi } from 'vitest';
 
 import api from '../lib/routes/twitter/api/web-api/api';
 import { buildGqlMap, fallbackIds } from '../lib/routes/twitter/api/web-api/gql-id-resolver';
+import twitterUtils from '../lib/routes/twitter/utils';
+import { getUserTimeline } from '../lib/routes/twitter/v2/user-feed';
 
 const fixtures = vi.hoisted(() => ({
     calls: [] as string[],
     cache: new Map<string, unknown>(),
     failDetail: false,
     envelope: 'user' as 'user' | 'user_result',
+    repost: false,
+    mainOnly: false,
     user: { rest_id: '42', core: { name: 'Writer', screen_name: 'writer' }, avatar: { image_url: 'https://example.com/avatar.png' }, profile_bio: { description: 'New bio' } },
 }));
 
@@ -48,8 +52,18 @@ vi.mock('../lib/routes/twitter/api/web-api/utils', async (importOriginal) => ({
                 },
             },
         });
+        const repost = () => {
+            const entry = tweet('301');
+            Object.assign(entry.content.itemContent.tweet_results.result.legacy, {
+                retweeted_status_result: { result: tweet('300', '200').content.itemContent.tweet_results.result },
+            });
+            return entry;
+        };
+        if (endpoint === 'UserTweets') {
+            return fixtures.repost ? [repost()] : [];
+        }
         if (endpoint === 'UserRepliesTimeline') {
-            return [tweet('300', '200'), tweet('400', undefined, true)];
+            return fixtures.mainOnly ? [tweet('400', undefined, true)] : [tweet('300', '200'), tweet('400', undefined, true), ...(fixtures.repost ? [repost()] : [])];
         }
         if (endpoint === 'TweetDetail') {
             if (fixtures.failDetail) {
@@ -67,6 +81,8 @@ beforeEach(() => {
     fixtures.calls.length = 0;
     fixtures.cache.clear();
     fixtures.failDetail = false;
+    fixtures.repost = false;
+    fixtures.mainOnly = false;
 });
 
 test('detail expands a reply with its parents, not unrelated injected posts, and retains quoted replies', async () => {
@@ -104,4 +120,27 @@ test('normalizes a newer user_result profile into author and description fields'
     fixtures.envelope = 'user_result';
     const profile = await api.getUser('writer');
     expect(profile).toMatchObject({ name: 'Writer', screen_name: 'writer', profile_image_url: 'https://example.com/avatar.png', description: 'New bio' });
+});
+
+test('keeps one fully expanded original when its self-repost also appears in the timeline', async () => {
+    fixtures.repost = true;
+    const timeline = await getUserTimeline(api, 'writer', {}, true, true);
+    const feed = twitterUtils.ProcessFeed({ req: { param: () => 'readable=1' } }, { data: timeline });
+    expect(feed.map((item) => item.link)).toEqual(['https://x.com/writer/status/400', 'https://x.com/writer/status/300']);
+    expect(feed[1].description).toContain('tweet 200');
+    expect(feed[1].description).toContain('tweet 100');
+    expect(feed[1].description).not.toContain('tweet 999');
+});
+
+test('expands a reposted reply found only in the main timeline without mutating cached posts', async () => {
+    fixtures.repost = true;
+    fixtures.mainOnly = true;
+    const timeline = await getUserTimeline(api, 'writer', {}, true, true);
+    const feed = twitterUtils.ProcessFeed({ req: { param: () => 'readable=1' } }, { data: timeline });
+    expect(feed.map((item) => item.link)).toEqual(['https://x.com/writer/status/400', 'https://x.com/writer/status/301']);
+    expect(feed[1].description).toContain('tweet 200');
+    expect(feed[1].description).toContain('tweet 100');
+    expect(feed[1].description).not.toContain('tweet 999');
+    const base = await api.getUserTweets('writer');
+    expect(base[0].retweeted_status.conversation_context).toBeUndefined();
 });
